@@ -5,33 +5,10 @@
       <h1>Impact Calculator</h1>
     </header>
     <div class="actions">
-      <button class="child bottle" id="bottle" @click="addBottle">
-        Add bottle!
-      </button>
-
-      <!-- Dropdown Menu -->
-      <div class="dropdown" v-if="showDropdown">
-        <ul>
-          <li>
-            Material
-            <!-- Nested Dropdown for Material -->
-            <ul v-if="showMaterialItems">
-              <li>Item 1</li>
-            </ul>
-          </li>
-          <li>
-            Size
-            <!-- Nested Dropdown for Size -->
-            <ul v-if="showSizeItems">
-              <li>Item 1</li>
-            </ul>
-          </li>
-        </ul>
-      </div>
-
+      <button class="child bottle">Add bottle!</button>
 
       <button class="child score" id="score" @click="generateImpactScore">
-        Click To Generate Your Impact Score!
+        
       </button>
       <button class="child savings" id="savings" @click="getSavings">
         Click To Get Your Savings!
@@ -46,6 +23,7 @@
 .impact-calculator header {
   text-align: center;
 }
+
 
 .actions {
   display: inline-block;
@@ -90,9 +68,10 @@ export default {
 
     return {
       bottlesAdded: 0,
+      showDropdown: false, // Controls the visibility of the dropdown
     };
   },
-  methods: {
+  methods: {  
     addBottle() {
       this.bottlesAdded++;
       // Further logic to handle bottle addition
