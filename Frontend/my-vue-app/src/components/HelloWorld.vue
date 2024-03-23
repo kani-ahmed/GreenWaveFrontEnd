@@ -64,7 +64,6 @@ export default {
     },
     generateImpactScore() {
       // Logic to generate impact score
-      console.log("HELLO");
     },
     getSavings() {
       // Logic to calculate savings
