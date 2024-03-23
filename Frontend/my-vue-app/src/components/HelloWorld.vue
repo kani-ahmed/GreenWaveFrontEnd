@@ -5,13 +5,37 @@
       <h1>Impact Calculator</h1>
     </header>
     <div class="actions">
-      <button @click="addBottle"> Add Bottle </button>
-      <div class="score" @click="generateImpactScore">
-        Click To Generate Your Impact Score {{ username }}!
+      <button class="child bottle" id="bottle" @click="addBottle">
+        Add bottle!
+      </button>
+
+      <!-- Dropdown Menu -->
+      <div class="dropdown" v-if="showDropdown">
+        <ul>
+          <li>
+            Material
+            <!-- Nested Dropdown for Material -->
+            <ul v-if="showMaterialItems">
+              <li>Item 1</li>
+            </ul>
+          </li>
+          <li>
+            Size
+            <!-- Nested Dropdown for Size -->
+            <ul v-if="showSizeItems">
+              <li>Item 1</li>
+            </ul>
+          </li>
+        </ul>
       </div>
-      <div class="savings" @click="getSavings">
-        Click To Get Your Savings {{ username }}!
-      </div>
+
+
+      <button class="child score" id="score" @click="generateImpactScore">
+        Click To Generate Your Impact Score!
+      </button>
+      <button class="child savings" id="savings" @click="getSavings">
+        Click To Get Your Savings!
+      </button>
     </div>
   </div>
 </template>
@@ -24,7 +48,7 @@
 }
 
 .actions {
-  display: flex;
+  display: inline-block;
   flex-direction: column;
   align-items: center;
 }
@@ -37,13 +61,24 @@
   cursor: pointer;
 }
 
+.child {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.bottle {
+  color: lightgrey;
+  background-color: blue;
+}
+
 .score {
-  background-color: limegreen;
+  color: lightgrey;
+  background-color: rgb(89, 151, 89);
 }
 
 .savings {
-  background-color: lightgreen;
-  transform: rotate(45deg);
+  color: lightgrey;
+  background-color: darkgreen;
 }
 </style>
 
@@ -52,8 +87,8 @@
 export default {
   name: 'ImpactCalculator',
   data() {
+
     return {
-      username: 'USERNAME',
       bottlesAdded: 0,
     };
   },
@@ -63,10 +98,12 @@ export default {
       // Further logic to handle bottle addition
     },
     generateImpactScore() {
-      // Logic to generate impact score
+      document.getElementById("score").innerHTML = "GENERATED SCORE";
+      console.log("Impact Score generated");
     },
     getSavings() {
-      // Logic to calculate savings
+      document.getElementById("savings").innerHTML = "GENERATED SAVINGS";
+      console.log("Savings Score generated");
     }
   }
 }
