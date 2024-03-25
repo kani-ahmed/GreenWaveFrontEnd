@@ -4,15 +4,22 @@
     <header>
       <h1>Impact Calculator</h1>
     </header>
-    <div class="actions">
-      <button class="child bottle">Add bottle!</button>
 
-      <button class="child score" id="score" @click="generateImpactScore">
-        
-      </button>
-      <button class="child savings" id="savings" @click="getSavings">
-        Click To Get Your Savings!
-      </button>
+
+    <div class="actions">
+
+
+
+      <img src="@/assets/waterbottle.png" alt="Bottle Image" @click="addBottle" />
+      <img src="@/assets/leaf.png" alt="Leaf Image" @click="generateImpactScore" />
+      <img src="@/assets/saving.png" alt="Saving Image" @click="getSavings" />
+
+      
+      
+      <div id="score"></div>
+      <div id="savings"></div>
+
+
     </div>
   </div>
 </template>
@@ -39,25 +46,21 @@
   cursor: pointer;
 }
 
-.child {
-  display: inline-block;
-  vertical-align: middle;
+.actions img {
+  width: 375px;
+  height: 375px;
+  margin: 10px;
 }
 
-.bottle {
-  color: lightgrey;
-  background-color: blue;
+#score {
+  font-size: 20px;
+  font-weight: bold;
 }
 
-.score {
-  color: lightgrey;
-  background-color: rgb(89, 151, 89);
-}
 
-.savings {
-  color: lightgrey;
-  background-color: darkgreen;
-}
+
+
+
 </style>
 
 
@@ -71,7 +74,7 @@ export default {
       showDropdown: false, // Controls the visibility of the dropdown
     };
   },
-  methods: {  
+  methods: {
     addBottle() {
       this.bottlesAdded++;
       // Further logic to handle bottle addition
