@@ -5,8 +5,8 @@
       <h1>Impact Calculator</h1>
     </header>
     <div class="actions">
-        <select name="bottle" class = "child bottle" id="bottle">
-          <option value="Add Bottle">Add a bottle!</option>
+        <select name="bottle" class = "child bottle" id="bottlepicker">
+          <option value="Pick Bottle">Pick a bottle!</option>
           <option value="Disposable Plastic 8oz">Disposable Plastic 8oz</option>
           <option value="Disposable Plastic 12oz">Disposable Plastic 12oz</option>
           <option value="Disposable Plastic 16.9oz">Disposable Plastic 16.9oz</option>
@@ -16,7 +16,7 @@
           <option value="Reuseable Metal 17 oz">Reuseable Metal 17 oz</option>
           <option value="Reuseable Metal 25 oz">Reuseable Metal 25 oz</option>
         </select>
-
+      <button class="child bottle" id="bottle" @click="addBottle">Add bottle!</button>
       <button class="child score" id="score" @click="generateImpactScore">
         
       </button>
@@ -83,6 +83,7 @@ export default {
   },
   methods: {  
     addBottle() {
+      document.getElementById("bottle").innerHTML = document.getElementById("bottlepicker").value;
       this.bottlesAdded++;
       // Further logic to handle bottle addition
     },
