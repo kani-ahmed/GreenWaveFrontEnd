@@ -5,7 +5,17 @@
       <h1>Impact Calculator</h1>
     </header>
     <div class="actions">
-      <button class="child bottle">Add bottle!</button>
+        <select name="bottle" class = "child bottle" id="bottle">
+          <option value="Add Bottle">Add a bottle!</option>
+          <option value="Disposable Plastic 8oz">Disposable Plastic 8oz</option>
+          <option value="Disposable Plastic 12oz">Disposable Plastic 12oz</option>
+          <option value="Disposable Plastic 16.9oz">Disposable Plastic 16.9oz</option>
+          <option value="Reuseable Plastic 17 oz">Reuseable Plastic 17 oz</option>
+          <option value="Reuseable Plastic 25 oz">Reuseable Plastic 25 oz</option>
+          <option value="Reuseable Metal 12 oz">Reuseable Metal 12 oz</option>
+          <option value="Reuseable Metal 17 oz">Reuseable Metal 17 oz</option>
+          <option value="Reuseable Metal 25 oz">Reuseable Metal 25 oz</option>
+        </select>
 
       <button class="child score" id="score" @click="generateImpactScore">
         
