@@ -32,8 +32,8 @@
       </button>
 
       <!-- Results display -->
-      <div id="scoreDisplay"></div>
-      <div id="savingsDisplay"></div>
+      <div id="scoreDisplay">{{ impactScore }}</div>
+      <div id="savingsDisplay">{{ savingsAmount }}</div>
     </div>
   </div>
 </template>
@@ -74,8 +74,6 @@
 
 
 
-
-
 </style>
 
 
@@ -83,26 +81,27 @@
 export default {
   name: 'ImpactCalculator',
   data() {
-
     return {
       bottlesAdded: 0,
-      showDropdown: false, // Controls the visibility of the dropdown
+      impactScore: '', // Added for displaying impact score
+      savingsAmount: '', // Added for displaying savings amount
     };
   },
   methods: {
     addBottle() {
-      document.getElementById("bottle").innerHTML = document.getElementById("bottlepicker").value;
+      // Assuming your logic for adding a bottle remains the same
       this.bottlesAdded++;
       // Further logic to handle bottle addition
     },
     generateImpactScore() {
-      document.getElementById("score").innerHTML = "GENERATED SCORE";
+      this.impactScore = "GENERATED SCORE"; // Update via Vue reactive data
       console.log("Impact Score generated");
     },
     getSavings() {
-      document.getElementById("savings").innerHTML = "GENERATED SAVINGS";
+      this.savingsAmount = "GENERATED SAVINGS"; // Update via Vue reactive data
       console.log("Savings Score generated");
     }
   }
 }
+
 </script>
