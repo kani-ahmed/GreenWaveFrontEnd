@@ -8,6 +8,19 @@
       <div class="image-action">
         <img src="@/assets/waterbottle.png" alt="Bottle Image" @click="addBottle" />
         <button class="child bottle" @click="addBottle">Add bottle!</button>
+        <!-- Dropdown moved here, directly below the "Add bottle" button -->
+        <select name="bottle" class="child bottle" id="bottlepicker">
+          <option value="pick">Pick a bottle!</option>
+          <!-- Additional bottle options -->
+          <option value="dp8">Disposable Plastic 8oz</option>
+          <option value="dp12">Disposable Plastic 12oz</option>
+          <option value="dp16.9">Disposable Plastic 16.9oz</option>
+          <option value="rp17">Reusable Plastic 17 oz</option>
+          <option value="rp25">Reusable Plastic 25 oz</option>
+          <option value="rm12">Reusable Metal 12 oz</option>
+          <option value="rm17">Reusable Metal 17 oz</option>
+          <option value="rm25">Reusable Metal 25 oz</option>
+        </select>
       </div>
       <div class="image-action">
         <img src="@/assets/leaf.png" alt="Leaf Image" @click="generateImpactScore" />
@@ -19,28 +32,13 @@
       </div>
     </div>
 
-    <div class="dropdown-actions">
-      <select name="bottle" class="child bottle" id="bottlepicker">
-        <option value="pick">Pick a bottle!</option>
-        <!-- Bottle options -->
-        <option value="pick">Pick a bottle!</option>
-        <option value="dp8">Disposable Plastic 8oz</option>
-        <option value="dp12">Disposable Plastic 12oz</option>
-        <option value="dp16.9">Disposable Plastic 16.9oz</option>
-        <option value="rp17">Reusable Plastic 17 oz</option>
-        <option value="rp25">Reusable Plastic 25 oz</option>
-        <option value="rm12">Reusable Metal 12 oz</option>
-        <option value="rm17">Reusable Metal 17 oz</option>
-        <option value="rm25">Reusable Metal 25 oz</option>
-      </select>
-    </div>
-
     <div class="results">
       <div id="scoreDisplay">{{ impactScore }}</div>
       <div id="savingsDisplay">{{ savingsAmount }}</div>
     </div>
   </div>
 </template>
+
 
 
 <!---
@@ -107,12 +105,30 @@
   cursor: pointer;
 }
 
+
 .image-action button {
   margin-top: 10px; /* Space between image and button */
   padding: 8px 12px;
   border: 1px solid #ccc;
   border-radius: 5px;
   cursor: pointer;
+}
+
+/* New CSS rule for the dropdown to ensure it's styled correctly and aligned under the button */
+.image-action select {
+  margin-top: 10px; /* Space between button and dropdown */
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 100%; /* Optional: Adjust the width as necessary to match the button above */
+}
+
+.image-action img {
+  width: 150px; /* Increase the width as needed */
+  height: auto; /* Keep height auto to maintain aspect ratio */
+  cursor: pointer;
+  margin: 0 10px; /* Adjust margin as needed */
 }
 
 .dropdown-actions {
