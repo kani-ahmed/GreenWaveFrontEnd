@@ -39,47 +39,6 @@
   </div>
 </template>
 
-
-
-<!---
-<template>
-  <div class="impact-calculator">
-    <header>
-      <h1>Impact Calculator</h1>
-    </header>
-
-    <div class="actions">
-      <select name="bottle" class="child bottle" id="bottlepicker">
-        <option value="pick">Pick a bottle!</option>
-        <option value="dp8">Disposable Plastic 8oz</option>
-        <option value="dp12">Disposable Plastic 12oz</option>
-        <option value="dp16.9">Disposable Plastic 16.9oz</option>
-        <option value="rp17">Reusable Plastic 17 oz</option>
-        <option value="rp25">Reusable Plastic 25 oz</option>
-        <option value="rm12">Reusable Metal 12 oz</option>
-        <option value="rm17">Reusable Metal 17 oz</option>
-        <option value="rm25">Reusable Metal 25 oz</option>
-      </select>
-      <img src="@/assets/waterbottle.png" alt="Bottle Image" @click="addBottle" />
-      <img src="@/assets/leaf.png" alt="Leaf Image" @click="generateImpactScore" />
-      <img src="@/assets/saving.png" alt="Saving Image" @click="getSavings" />
-      
-      <button class="child bottle" id="bottle" @click="addBottle">Add bottle!</button>
-      <button class="child score" id="scoreButton" @click="generateImpactScore">
-        Generate Score
-      </button>
-      <button class="child savings" id="savingsButton" @click="getSavings">
-        Click To Get Your Savings!
-      </button>
-
-      <div id="scoreDisplay">{{ impactScore }}</div>
-      <div id="savingsDisplay">{{ savingsAmount }}</div>
-    </div>
-  </div>
-</template>
--->
-
-
 <style scoped>
 /* General styling for the impact calculator */
 .impact-calculator header {
