@@ -96,7 +96,7 @@ export default {
   methods: {
     addBottle(bottleType) {
       // Increase the count for the specified bottle type
-      if (bottleType = "pick")
+      if (bottleType == "pick")
       {
         //throw error
       }
