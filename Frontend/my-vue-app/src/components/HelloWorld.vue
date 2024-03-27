@@ -1,3 +1,4 @@
+
 <template>
   <div class="impact-calculator">
     <header>
@@ -39,39 +40,60 @@
 </template>
 
 
-
 <style scoped>
-/* css formatting for feature 1 page */
+/* General styling for the impact calculator */
 .impact-calculator header {
   text-align: center;
 }
 
-
+/* Container for action items, using flexbox for better layout control */
 .actions {
-  display: inline-block;
-  flex-direction: column;
-  align-items: center;
+  display: flex;
+  flex-direction: column; /* Primary direction to stack groups vertically */
+  align-items: center; /* Center items horizontally */
+  justify-content: center; /* Center items vertically in their container */
 }
 
-.actions>* {
-  margin: 10px;
-  padding: 10px;
-  border: none;
+/* Row container for the image buttons to align them horizontally */
+.image-buttons {
+  display: flex;
+  justify-content: center; /* Center image buttons horizontally */
+  margin-bottom: 20px; /* Space between image buttons and the next row */
+}
+
+.image-buttons img {
+  width: 100px; /* Adjusted width for a better fit */
+  height: auto; /* Maintain aspect ratio */
+  margin: 0 10px; /* Space between images */
+  cursor: pointer;
+}
+
+/* Row container for the dropdown and other buttons */
+.selection-row {
+  display: flex;
+  justify-content: center; /* Center elements within the selection row */
+  gap: 20px; /* Space between elements */
+}
+
+/* Styles for the dropdown and buttons to ensure visual consistency */
+.selection-row select,
+.selection-row button {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
   border-radius: 5px;
   cursor: pointer;
 }
 
-.actions img {
-  width: 375px;
-  height: 375px;
-  margin: 10px;
-}
-
-#score {
+/* Style adjustments for the display of scores and savings */
+#scoreDisplay, #savingsDisplay {
+  text-align: center;
   font-size: 20px;
   font-weight: bold;
+  margin-top: 20px; /* Adds space above the display elements */
 }
 </style>
+
+
 
 
 <script>
