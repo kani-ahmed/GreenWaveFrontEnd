@@ -1,26 +1,28 @@
 <template>
+  <div id="app">
     <img alt="Vue logo" src="./assets/logo.png" style="width: 500px;">
-    <HelloWorld msg="Welcome to Your Vue.js App" />
+    <ImpactCalculator />
+  </div>
 </template>
 
 <script>
-import HelloWorld from './components/DashBoard.vue'
+import ImpactCalculator from './components/ImpactCalculator.vue'
 
 export default {
-    name: 'App',
-    components: {
-        HelloWorld
-    }
+  name: 'App',
+  components: {
+    ImpactCalculator
+  }
 }
 </script>
 
 <style>
 #app {
-    font-family: Avenir, Helvetica, Arial, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-align: center;
-    color: #2c3e50;
-    margin-top: 60px;
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+  margin-top: 60px;
 }
 </style>
