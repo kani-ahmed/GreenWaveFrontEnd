@@ -7,15 +7,15 @@
     <div class="actions">
       <!-- Retained from kyle-ktk33 for dropdown selection -->
       <select name="bottle" class="child bottle" id="bottlepicker">
-        <option value="Pick Bottle">Pick a bottle!</option>
-        <option value="Disposable Plastic 8oz">Disposable Plastic 8oz</option>
-        <option value="Disposable Plastic 12oz">Disposable Plastic 12oz</option>
-        <option value="Disposable Plastic 16.9oz">Disposable Plastic 16.9oz</option>
-        <option value="Reusable Plastic 17 oz">Reusable Plastic 17 oz</option>
-        <option value="Reusable Plastic 25 oz">Reusable Plastic 25 oz</option>
-        <option value="Reusable Metal 12 oz">Reusable Metal 12 oz</option>
-        <option value="Reusable Metal 17 oz">Reusable Metal 17 oz</option>
-        <option value="Reusable Metal 25 oz">Reusable Metal 25 oz</option>
+        <option value="pick">Pick a bottle!</option>
+        <option value="dp8">Disposable Plastic 8oz</option>
+        <option value="dp12">Disposable Plastic 12oz</option>
+        <option value="dp16.9">Disposable Plastic 16.9oz</option>
+        <option value="rp17">Reusable Plastic 17 oz</option>
+        <option value="rp25">Reusable Plastic 25 oz</option>
+        <option value="rm12">Reusable Metal 12 oz</option>
+        <option value="rm17">Reusable Metal 17 oz</option>
+        <option value="rm25">Reusable Metal 25 oz</option>
       </select>
       <!-- Using images for a more interactive UI, from HEAD -->
       <img src="@/assets/waterbottle.png" alt="Bottle Image" @click="addBottle" />
@@ -79,15 +79,32 @@ export default {
   name: 'ImpactCalculator',
   data() {
     return {
-      bottlesAdded: 0,
+      bottleCounts: { // Object to store counts for each bottle type
+        'dp8': 0,
+        'dp12': 0,
+        'dp16.9': 0,
+        'rp17': 0,
+        'rp25': 0,
+        'rm12': 0,
+        'rm17': 0,
+        'rm25': 0
+      },
       impactScore: '', // Added for displaying impact score
       savingsAmount: '', // Added for displaying savings amount
     };
   },
   methods: {
-    addBottle() {
-      // Assuming your logic for adding a bottle remains the same
-      this.bottlesAdded++;
+    addBottle(bottleType) {
+      // Increase the count for the specified bottle type
+      if (bottleType = "pick")
+      {
+        //throw error
+      }
+      else
+      {
+        this.bottleCounts[bottleType]++;
+        console.log(`${this.bottleCounts[bottleType]} ${bottleType} added.`);
+      }
       // Further logic to handle bottle addition
     },
     generateImpactScore() {
