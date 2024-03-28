@@ -36,7 +36,7 @@ export default {
 .image-actions {
   display: flex;
   justify-content: center;
-  gap: 20px;
+  gap: 40px;
 }
 
 .image-action {
@@ -44,12 +44,15 @@ export default {
   flex-direction: column;
   align-items: center;
   margin-bottom: 20px;
+  width: 200px;
 }
 
 .image-action img {
-  width: 100px;
-  height: auto;
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
   cursor: pointer;
+  margin-bottom: 10px;
 }
 
 .image-action button {
@@ -58,6 +61,7 @@ export default {
   border: 1px solid #ccc;
   border-radius: 5px;
   cursor: pointer;
+  width: 100%;
 }
 
 .image-action select {
@@ -67,12 +71,5 @@ export default {
   border-radius: 5px;
   cursor: pointer;
   width: 100%;
-}
-
-.image-action img {
-  width: 150px;
-  height: auto;
-  cursor: pointer;
-  margin: 0 10px;
 }
 </style>
