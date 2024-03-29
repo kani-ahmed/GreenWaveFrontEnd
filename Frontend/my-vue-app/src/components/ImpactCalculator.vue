@@ -24,7 +24,7 @@ export default {
         'dp8': 0,
         'dp12': 0,
         'dp16.9': 0,
-        'rp17': 0,
+        'rp17': 0, 
         'rp25': 0,
         'rm12': 0,
         'rm17': 0,
@@ -39,11 +39,33 @@ export default {
       if (bottleType !== "pick") {
         this.bottleCounts[bottleType]++;
         console.log(`${this.bottleCounts[bottleType]} ${bottleType} added.`);
+        console.log("Current Bottle Counts:", this.bottleCounts);
       }
     },
+    //generateImpactScore() {
+    //  this.impactScore = "GENERATED SCORE";
+    //  console.log("Impact Score generated"); 
+    //}
     generateImpactScore() {
-      this.impactScore = "GENERATED SCORE";
-      console.log("Impact Score generated");
+      // Points assigned to each bottle type
+      const pointsPerBottle = {
+        'dp8': 1,    // 8 oz bottle = 1 point
+        'dp12': 3,   // 12 oz = 3 points
+        'dp16.9': 5, // 16 oz = 5 points
+        // The rest don't contribute to the total points
+      };
+
+      // Calculate the total impact score
+      let score = 0;
+      for (const bottleType in this.bottleCounts) {
+        if (Object.hasOwnProperty.call(pointsPerBottle, bottleType)) {
+          score += this.bottleCounts[bottleType] * pointsPerBottle[bottleType];
+        }
+      }
+
+      // Update the impactScore state
+      this.impactScore = score;
+      console.log("Impact Score generated:", this.impactScore);
     },
     getSavings() {
       this.savingsAmount = "GENERATED SAVINGS";
