@@ -1,6 +1,8 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png" style="width: 500px;">
+    <div class="logo-wrapper">
+      <img alt="Vue logo" src="./assets/logo.png" style="width: 500px;">
+    </div>
     <ImpactCalculator />
   </div>
 </template>
@@ -24,5 +26,12 @@ export default {
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+}
+
+.logo-wrapper {
+  background-image: url('@/assets/background.png');
+  background-size: cover;
+  background-position: center;
+  padding: 20px; /* Adjust padding as needed */
 }
 </style>
