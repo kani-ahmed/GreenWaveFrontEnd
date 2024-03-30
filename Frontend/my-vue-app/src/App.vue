@@ -19,6 +19,13 @@ export default {
 </script>
 
 <style>
+
+body {
+  background-color: #e4fcec; /* Sets the background color for the whole page */
+  margin: 0; /* Removes any default margin that may cause white spaces around the edges */
+}
+
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -26,12 +33,8 @@ export default {
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+  background-color: #e4fcec; /* New green color for the app background */
 }
 
-.logo-wrapper {
-  background-image: url('@/assets/background.png');
-  background-size: cover;
-  background-position: center;
-  padding: 20px; /* Adjust padding as needed */
-}
 </style>
+

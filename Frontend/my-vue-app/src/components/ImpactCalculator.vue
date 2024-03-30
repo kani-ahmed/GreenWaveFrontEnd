@@ -67,6 +67,7 @@
           'rm17': 0,
           'rm25': 0
         },
+        savingsClickCount: 0,
         impactScore: '',
         savingsAmount: '',
         showImpactScore: false,
@@ -108,8 +109,28 @@
       },
       
       getSavings() {
-        this.savingsAmount = "GENERATED SAVINGS";
-        console.log("Savings Score generated");
+        // Calculate the total number of bottles
+        const totalBottles = Object.values(this.bottleCounts).reduce((total, count) => total + count, 0);
+
+        // Calculate the savings using a logarithmic function
+        const baseValue = 5; // Smaller base value for harsher savings growth
+        const dampeningFactor = 1; // Adds a constant inside the log to lower the savings growth rate
+
+        // Apply the dampening factor to make the ceiling lower and harsher
+        // Now using totalBottles as the input for the logarithm function
+        let calculatedSavings = Math.log(totalBottles + dampeningFactor) * baseValue;
+
+        // Use a fractional multiplier to further control the rate of growth
+        const growthRate = 0.7; // Lower this value to make the growth even harsher
+        calculatedSavings *= growthRate;
+
+        // Optional: round the savings to two decimal places
+        calculatedSavings = calculatedSavings.toFixed(2);
+
+        // Update the savingsAmount with the dollar sign
+        this.savingsAmount = `$${calculatedSavings}`;
+
+        console.log("Savings Score generated:", this.savingsAmount);
         
         // Show the savings amount
         this.showSavings = true;
@@ -123,12 +144,13 @@
   .impact-calculator {
     font-family: 'Roboto', sans-serif;
     color: #333;
-    background: #f0f0f0; /* Subtle background color for the whole calculator */
+    /*background: #f0f0f0; /* Subtle background color for the whole calculator */
     padding: 2rem;
     border-radius: 10px;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
     max-width: 800px;
     margin: 2rem auto;
+    background: #e4fcec; /* New green color for the impact calculator background */
   }
 
   /* Header styles */
@@ -139,6 +161,7 @@
     border-radius: 8px 8px 0 0;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     text-align: center;
+    z-index: 1; /* Assuming this is lower than the image-actions */
     position: relative; /* For positioning the logo if needed */
   }
 
@@ -171,6 +194,8 @@
     border-radius: 8px; /* Rounded corners for the action area */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow for depth */
     margin-top: -1rem; /* Pull the action area up to overlap with the header */
+    z-index: 2; /* Higher than the header */
+    position: relative; /* z-index only works on positioned elements */
   }
 
 
@@ -184,8 +209,8 @@
 
 
   .image-action img {
-    width: 150px;
-    height: 150px;
+    width: 200px;
+    height: 200px;
     object-fit: cover;
     cursor: pointer;
     margin-bottom: 10px;
