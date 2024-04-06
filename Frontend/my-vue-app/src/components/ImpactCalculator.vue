@@ -75,6 +75,7 @@
         savingsAmount: '',
         showImpactScore: false,
         showSavings: false,
+        userID: '',
       };
     },
     methods: {
@@ -143,24 +144,21 @@
       mounted() {
         this.fetchData();
       },
+
       // this function will make the API call to get the data
-      async fetchData() {
+      async logWaterUsage() {
         // try to get the data from the API 
         try {
-          const response = await axios.get('https://software-engineering-project-359615528899.herokuapp.com/log_action')
+          // pass json data to the API of userid, bottle type, and the count of bottles
+          const response = await axios.post('https://software-engineering-project-359615528899.herokuapp.com/log_water_usage', {
+            user_id: this.userID,
+            bottle_type: this.bottleType,
+            count: this.bottleCounts
+          })
+        
           // get the bottle counts
-          const waterdata = response.data
-          this.bottleCounts = waterdata.bottleCounts
-          // get the savings click count
-          this.savingsClickCount = waterdata.savingsClickCount
-          // get the impact score
-          this.impactScore = waterdata.impactScore
-          // get the savings amount
-          this.savingsAmount = waterdata.savingsAmount
-          // get the show impact score
-          this.showImpactScore = waterdata.showImpactScore
-          // get the show savings
-          this.showSavings = waterdata.showSavings
+          console.log(response.data)
+          
         } catch (error) {
           // if there is an error, log the error
           console.error(error)
