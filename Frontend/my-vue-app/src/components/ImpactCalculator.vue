@@ -53,6 +53,9 @@
 
   
   <script>
+
+  import axios from 'axios';
+
   export default {
     name: 'ImpactCalculator',
     data() {
@@ -61,7 +64,7 @@
           'dp8': 0,
           'dp12': 0,
           'dp16.9': 0,
-          'rp17': 0, 
+          'rp17': 0,
           'rp25': 0,
           'rm12': 0,
           'rm17': 0,
@@ -82,7 +85,7 @@
           console.log("Current Bottle Counts:", this.bottleCounts);
         }
       },
-      
+
       generateImpactScore() {
         // Points assigned to each bottle type
         const pointsPerBottle = {
@@ -107,7 +110,7 @@
         // Show the impact score
         this.showImpactScore = true;
       },
-      
+
       getSavings() {
         // Calculate the total number of bottles
         const totalBottles = Object.values(this.bottleCounts).reduce((total, count) => total + count, 0);
@@ -131,12 +134,43 @@
         this.savingsAmount = `$${calculatedSavings}`;
 
         console.log("Savings Score generated:", this.savingsAmount);
-        
+
         // Show the savings amount
         this.showSavings = true;
       },
+
+      // this mount function will make the API call to get the data
+      mounted() {
+        this.fetchData();
+      },
+      // this function will make the API call to get the data
+      async fetchData() {
+        // try to get the data from the API 
+        try {
+          const response = await axios.get('https://software-engineering-project-359615528899.herokuapp.com/log_action')
+          // get the bottle counts
+          const waterdata = response.data
+          this.bottleCounts = waterdata.bottleCounts
+          // get the savings click count
+          this.savingsClickCount = waterdata.savingsClickCount
+          // get the impact score
+          this.impactScore = waterdata.impactScore
+          // get the savings amount
+          this.savingsAmount = waterdata.savingsAmount
+          // get the show impact score
+          this.showImpactScore = waterdata.showImpactScore
+          // get the show savings
+          this.showSavings = waterdata.showSavings
+        } catch (error) {
+          // if there is an error, log the error
+          console.error(error)
+        }
+      }  
     }
   }
+
+
+
   </script>
   
   <style scoped>
