@@ -163,7 +163,57 @@
           // if there is an error, log the error
           console.error(error)
         }
-      }  
+      },
+
+      // this function will make an API call to get the impact score
+    async generateImpactScore() {
+    // try to get the data from the API 
+      try {
+        // pass json data to the API of the user id and total impact score
+        const response = await axios.get(`https://software-engineering-project-359615528899.herokuapp.com/get_impact/${this.userID}`);
+        const userData = response.data;
+        this.userID = userData.user_id;
+        this.impactScore = userData.total_impacts;
+
+        // get the impact score
+        console.log(response.data);
+      } catch (error) {
+        // if there is an error, log the error
+        console.error(error);
+      }
+    },
+
+    // this function will make an API call to get the savings amount
+    async getSavings(){
+
+      // try to get the data from the API 
+      try {
+        // pass json data to the API of the user id and the savings amount
+        const response = await axios.get(`https://software-engineering-project-359615528899.herokuapp.com/get_detailed_impact/${this.userID}`);
+        const userData = response.data;
+        this.userID = userData.user_id;
+        
+        userData.array.forEach(impact => {
+          console.log(impact.money_saved);
+        });
+
+        this.savingsAmount =  userData[0].money_saved;
+
+        // get the savings amount
+        console.log(response.data);
+      } catch (error) {
+        // if there is an error, log the error
+        console.error(error);
+      }
+    }
+
+ 
+
+
+
+
+
+
     }
   }
 
