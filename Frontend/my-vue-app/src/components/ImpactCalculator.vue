@@ -189,7 +189,7 @@
       // try to get the data from the API 
       try {
         // pass json data to the API of the user id and the savings amount
-        const response = await axios.get(`https://software-engineering-project-359615528899.herokuapp.com/get_detailed_impact/${this.userID}`);
+        const response = await axios.get(`https://software-engineering-project-359615528899.herokuapp.com/get_impact/${this.userID}`);
         const userData = response.data;
         this.userID = userData.user_id;
         
