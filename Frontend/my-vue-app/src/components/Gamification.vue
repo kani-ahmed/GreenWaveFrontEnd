@@ -38,6 +38,12 @@ export default {
       } else {
         this.ecoPointsText = 'Eco-points';
       }
+
+      // esteban commits for api requests and handling the data
+      
+
+
+
     }
   }
 }
