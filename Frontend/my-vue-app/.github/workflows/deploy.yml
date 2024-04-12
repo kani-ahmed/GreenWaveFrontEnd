@@ -3,10 +3,10 @@ name: Deploy to Heroku
 on:
   push:
     branches:
-      - main  # Set this to the branch you want to deploy from
+      - main  # deploy to Heroku only when code is pushed to main branch
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -15,18 +15,18 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '14'  # Set this to the version of Node.js that your project uses
+          node-version: '14' # Use Node.js 14
 
-      - name: Install dependencies
+      - name: Install dependencies # Install dependencies using npm
         run: npm install
 
-      - name: Build
-        run: npm run build
+      - name: Build # Build the Vue app
+        run: npm run build # This will create a dist folder with the built files
 
       - name: Deploy to Heroku
-        uses: akhileshns/heroku-deploy@v3.12.12  # This is a community action for deploying to Heroku
+        uses: akhileshns/heroku-deploy@v3.12.12  # This action facilitates deployment to Heroku
         with:
           heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
           heroku_app_name: ${{ secrets.HEROKU_APP_NAME }}
           heroku_email: ${{ secrets.HEROKU_EMAIL }}
-          usedocker: true  # Set this to false if you're not using Docker
+          appdir: "dist"  # Directory to deploy
