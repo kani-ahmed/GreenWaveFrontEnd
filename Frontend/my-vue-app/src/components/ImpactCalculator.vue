@@ -152,7 +152,7 @@ export default {
       // Make the API request to fetch user profile data
       try {
         // Replace 'http://127.0.0.1:8000/view_profile/${this.userId}' with your actual API endpoint
-        const response = await axios.get(`http://127.0.0.1:8000/view_profile/${this.userID}`);
+        const response = await axios.get(`https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/view_profile/${this.userID}`);
         const profileData = response.data;
 
         // Update the component's data properties with the fetched profile data
