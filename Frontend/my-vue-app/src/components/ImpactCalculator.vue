@@ -54,7 +54,7 @@
   
   <script>
 
-  import axios from 'axios';
+  //import axios from 'axios';
 
   export default {
     name: 'ImpactCalculator',
@@ -140,6 +140,7 @@
         this.showSavings = true;
       },
 
+      /*
       // this mount function will make the API call to get the data
       mounted() {
         this.fetchData();
@@ -206,6 +207,7 @@
         console.error(error);
       }
     }
+    */
 
  
 

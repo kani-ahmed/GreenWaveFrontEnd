@@ -9,15 +9,15 @@
 
 <script>
 import ImpactCalculator from './components/ImpactCalculator.vue'
-import Gamification from './components/Gamification.vue'
-import Homepage from './components/Homepage.vue'
+//import Gamification from './components/Gamification.vue'
+//import Homepage from './components/Homepage.vue'
 
 export default {
   name: 'App',
   components: {
     ImpactCalculator,
-    Gamification,
-    Homepage
+    //Gamification,
+    //Homepage
   }
 }
 </script>
