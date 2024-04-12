@@ -152,7 +152,9 @@ export default {
       // Make the API request to fetch user profile data
       try {
         // Replace 'http://127.0.0.1:8000/view_profile/${this.userId}' with your actual API endpoint
-        const response = await axios.get(`https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/view_profile/${this.userID}`);
+        // http://127.0.0.1:8000
+        // https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com
+        const response = await axios.get(`http://127.0.0.1:8000/view_profile/${this.userID}`);
         const profileData = response.data;
 
         // Update the component's data properties with the fetched profile data
@@ -221,7 +223,9 @@ export default {
       // try to get the data from the API 
       try {
         // pass json data to the API of the user id and the savings amount
-        const response = await axios.get(`https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/get_impact/${this.userID}`);
+        // http://127.0.0.1:8000
+        // https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com
+        const response = await axios.get(`http://127.0.0.1:8000/get_impact/${this.userID}`);
         const userData = response.data;
         this.userID = userData.user_id;
 
@@ -238,12 +242,6 @@ export default {
         console.error(error);
       }
     }
-
-
-
-
-
-
 
   }
 }
