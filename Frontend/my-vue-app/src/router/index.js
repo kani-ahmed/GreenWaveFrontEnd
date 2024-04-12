@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import LoginPage from '../components/LoginPage.vue';
+import LoginPage from '../components/Loginpage.vue';
 import RegisterPage from '../components/RegisterPage.vue';
 import ImpactCalculator from '../components/ImpactCalculator.vue';
 
