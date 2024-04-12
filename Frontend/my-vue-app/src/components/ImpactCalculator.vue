@@ -22,6 +22,13 @@
           <option value="rm17">Reusable Metal 17 oz</option>
           <option value="rm25">Reusable Metal 25 oz</option>
         </select>
+        
+        <!-- New profile button -->
+        <div class="image-action">
+          <button @click="fetchUserProfile">Profile</button>
+        </div>
+
+
       </div>
 
       <div class="image-action">
@@ -54,7 +61,7 @@
   
   <script>
 
-  //import axios from 'axios';
+  import axios from 'axios';
 
   export default {
     name: 'ImpactCalculator',
@@ -75,7 +82,7 @@
         savingsAmount: '',
         showImpactScore: false,
         showSavings: false,
-        userID: '',
+        userID: 1,
       };
     },
     methods: {
@@ -139,6 +146,30 @@
         // Show the savings amount
         this.showSavings = true;
       },
+
+
+      async fetchUserProfile() {
+      // Make the API request to fetch user profile data
+      try {
+        // Replace 'http://127.0.0.1:8000/view_profile/${this.userId}' with your actual API endpoint
+        const response = await axios.get(`http://127.0.0.1:8000/view_profile/${this.userID}`);
+        const profileData = response.data;
+
+        // Update the component's data properties with the fetched profile data
+        this.username = profileData.username;
+        this.email = profileData.email;
+        this.profilePicture = profileData.profilePicture;
+        this.ecoPoints = profileData.ecoPoints;
+        this.receiveNotifications = profileData.receiveNotifications;
+        this.privacySettings = profileData.privacySettings;
+        this.badges = profileData.badges;
+
+        // Log the retrieved profile data
+        console.log(profileData);
+      } catch (error) {
+        console.error(error);
+      }
+    }
 
       /*
       // this mount function will make the API call to get the data
