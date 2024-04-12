@@ -3,25 +3,13 @@
     <div class="logo-wrapper">
       <img alt="Vue logo" src="./assets/logo.png" style="width: 500px;">
     </div>
-    <ImpactCalculator />
+    <router-view></router-view>
   </div>
 </template>
 
-
 <script>
-//import LoginPage from './components/LoginPage.vue'
-import ImpactCalculator from './components/ImpactCalculator.vue'
-//import Gamification from './components/Gamification.vue'
-//import Homepage from './components/Homepage.vue'
-
 export default {
-  name: 'App',
-  components: {
-    //LoginPage
-    ImpactCalculator,
-    //Gamification,
-    //Homepage
-  }
+  name: 'App'
 }
 </script>
 

@@ -23,10 +23,7 @@
           <option value="rm25">Reusable Metal 25 oz</option>
         </select>
 
-        <!-- New profile button -->
-        <div class="image-action">
-          <button @click="fetchUserProfile">Profile</button>
-        </div>
+        
 
 
       </div>
@@ -147,7 +144,7 @@ export default {
       this.showSavings = true;
     },
 
-
+    /*
     async fetchUserProfile() {
       // Make the API request to fetch user profile data
       try {
@@ -172,6 +169,7 @@ export default {
         console.error(error);
       }
     },
+    */
 
 
     // this mount function will make the API call to get the data
