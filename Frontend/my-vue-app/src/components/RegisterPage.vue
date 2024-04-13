@@ -32,7 +32,7 @@
     },
     methods: {
       register() {
-        const apiUrl = 'http://127.0.0.1:8000/register';
+        const apiUrl = 'https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/register';
         const userData = {
           username: this.username,
           email: this.email,

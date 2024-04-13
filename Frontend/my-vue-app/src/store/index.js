@@ -16,7 +16,7 @@ const store = createStore({
   },
   actions: {
     loginUser({ commit }, credentials) {
-      const loginUrl = 'http://127.0.0.1:8000/login';
+      const loginUrl = 'https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/login';
       axios.post(loginUrl, credentials)
         .then(response => {
           if (response.status === 200 && response.data.user_id) {

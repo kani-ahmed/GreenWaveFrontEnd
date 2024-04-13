@@ -49,7 +49,7 @@
     <div v-if="showBadgesModal" class="modal">
       <div class="modal-content">
         <span class="close" @click="showBadgesModal = false">&times;</span>
-        <h2 class="modal-title">Your Badges</h2> <!-- Add this line for the title -->
+        <h2 class="modal-title">Your Badges</h2>
         <div class="badges-container">
           <img 
             v-for="badge in badges" 
@@ -73,6 +73,7 @@
 <script>
 import { mapGetters } from 'vuex';
 import axios from 'axios';
+
 
 
 export default {
@@ -112,7 +113,8 @@ export default {
         return;
       }
 
-      const url = `http://127.0.0.1:8000/get_personal_challenges/${this.currentUser.userId}`;
+      const url = `https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/get_personal_challenges/${this.currentUser.userId}`;
+      console.log(this.currentUser.userId)
 
       axios.get(url)
         .then(response => {
@@ -131,7 +133,7 @@ export default {
 
       fetchUserBadges() {
         // Replace with your actual API call to fetch badges
-        const url = `http://127.0.0.1:8000/get_badges/${this.currentUser.userId}`;
+        const url = `https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/get_badges/${this.currentUser.userId}`;
 
         axios.get(url)
           .then(response => {
