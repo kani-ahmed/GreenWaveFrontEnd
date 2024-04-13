@@ -24,7 +24,9 @@
 </template>
 
 <script>
-import axios from 'axios';
+//import axios from 'axios';
+import { mapActions } from 'vuex'; // Import mapActions correctly
+
 
 export default {
   data() {
@@ -34,28 +36,15 @@ export default {
     }
   },
   methods: {
+    ...mapActions(['loginUser']), // Mapping Vuex actions
+
     login() {
-      const apiUrl = 'http://127.0.0.1:8000/login'; // Adjust according to your API
-      const userData = {
+      this.loginUser({
         username: this.username,
         password: this.password
-      };
-      
-      axios.post(apiUrl, userData)
-        .then(response => {
-          if (response.status === 200) {
-            console.log("Login successful!");
-            this.$router.push('/calculator');
-          } else {
-            console.error('Login failed:', response.data);
-            alert('Login failed');
-          }
-        })
-        .catch(error => {
-          console.error('Error during login:', error.response.data);
-          alert('Login error');
-        });
+      });
     },
+
     goToRegister() {
       this.$router.push('/register');
     }
