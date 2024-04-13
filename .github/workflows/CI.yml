@@ -1,0 +1,41 @@
+name: CI for Vue App
+
+on:
+  push:
+    branches:
+      - deployment  # Triggered when code is pushed to the deployment branch
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '14'  # Use Node.js version 14
+
+      - name: Install dependencies
+        run: npm install
+        working-directory: ./Frontend/my-vue-app
+
+      - name: Lint
+        run: npm run lint  # Make sure you have a lint script in your package.json
+        working-directory: ./Frontend/my-vue-app
+
+      # Run security checks with npm audit. Break the build if high severity issues are found.
+      - name: Security Check
+        run: npm audit --audit-level=high
+        working-directory: ./Frontend/my-vue-app
+
+      # Build the Vue app
+      - name: Build
+        run: npm run build
+        working-directory: ./Frontend/my-vue-app
+
+      # Add your unit tests or other test scripts
+#      - name: Run unit tests
+#        run: npm test  # Replace with your actual test script
+#        working-directory: ./Frontend/my-vue-app
