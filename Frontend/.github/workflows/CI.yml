@@ -3,7 +3,7 @@ name: CI for Vue App
 on:
   push:
     branches:
-      - deployment  # Triggered when code is pushed to the deployment branch
+      - deployment-2  # Triggered when code is pushed to the deployment branch
 
 jobs:
   build-and-test:
