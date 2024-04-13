@@ -1,3 +1,9 @@
+
+
+
+## Video Link to web application
+The video link to how the application works: https://github.com/pxd222PranavDhinakar/Green-Wave/assets/118007706/43f31535-719c-4fe5-a7e7-846904f29468
+
 ## Git Workflow Useful Rules (Not Strict)
 
 To maintain the integrity and quality of our codebase, we follow a structured process for contributing changes. Please adhere to the steps outlined below to ensure your contributions can be efficiently reviewed and integrated.
