@@ -1,5 +1,12 @@
 <template>
   <div class="impact-calculator">
+
+    <!-- Dashboard Navigation Bar -->
+    <div class="dashboard-nav">
+      <button @click="navigateTo('ChallengeCenter')">Go to ChallengeCenter</button>
+      <!-- Add more buttons as needed for other navigation links -->
+    </div>
+
     <!-- Header -->
     <header>
       <h1>Impact Calculator</h1>
@@ -83,6 +90,11 @@ export default {
     };
   },
   methods: {
+
+    navigateTo(page) {
+      this.$router.push({ name: page });
+    },
+
     addBottle(bottleType) {
       if (bottleType !== "pick") {
         this.bottleCounts[bottleType]++;
@@ -249,6 +261,33 @@ export default {
 </script>
 
 <style scoped>
+
+.dashboard-nav {
+  background-color: #4CAF50; /* Your green color */
+  padding: 10px;
+  text-align: center;
+  border-radius: 10px; /* Rounded corners for the dashboard */
+  display: flex; /* Use flexbox to align buttons */
+  justify-content: center; /* Center buttons horizontally */
+  gap: 10px; /* Adds space between buttons */
+}
+
+.dashboard-nav button {
+  background-color: #8BC34A; /* Lighter green for buttons */
+  color: white;
+  border: none;
+  padding: 5px 10px; /* Reduced padding */
+  cursor: pointer;
+  border-radius: 5px; /* Slightly rounded corners for buttons */
+  white-space: nowrap; /* Prevent text wrapping in buttons */
+  display: inline-block; /* Ensures buttons don't stretch */
+  box-sizing: border-box; /* Includes padding in width calculation */
+}
+
+.dashboard-nav button:hover {
+  background-color: #7CB342; /* Slightly darker green on hover */
+}
+
 /* Main layout and typography */
 .impact-calculator {
   font-family: 'Roboto', sans-serif;
