@@ -14,34 +14,40 @@
           <label for="password">Password:</label>
           <input type="password" id="password" v-model="password" required>
         </div>
-        <button type="submit">Login</button>
+        <button type="submit" :disabled="isAuthLoading">Login</button>
+        <div v-if="isAuthLoading">Logging in...</div>
+        <div v-if="loginErrorMessage">{{ loginErrorMessage }}</div>
       </form>
     </div>
+    <button @click="goToRegister">Register</button>
   </div>
-
-  <button @click="goToRegister">Register</button>
-
 </template>
 
 <script>
-//import axios from 'axios';
-import { mapActions } from 'vuex'; // Import mapActions correctly
-
+import { mapActions, mapState } from 'vuex';
 
 export default {
   data() {
     return {
       username: '',
       password: ''
-    }
+    };
+  },
+  computed: {
+    ...mapState({
+      isAuthLoading: state => state.isLoading,
+      loginErrorMessage: state => state.loginError
+    })
   },
   methods: {
-    ...mapActions(['loginUser']), // Mapping Vuex actions
+    ...mapActions(['loginUser']),
 
     login() {
       this.loginUser({
         username: this.username,
         password: this.password
+      }).catch(error => {
+        console.error('Login error:', error.message);
       });
     },
 

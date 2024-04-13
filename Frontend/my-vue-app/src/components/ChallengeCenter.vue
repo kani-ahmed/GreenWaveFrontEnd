@@ -1,27 +1,16 @@
 <template>
-<div class="Gamification">
-  
-  
-  <!-- Dashboard Navigation Bar -->
-  <div class="dashboard-nav">
-    <button @click="navigateTo('ImpactCalculator')">Back to Calculator</button>
-    <!-- Additional buttons can be added here if needed -->
-  </div>
-
+  <div class="Gamification">
     <header>
       <h1>Challenge Center</h1>
     </header>
 
     <main>
       <div class="button-container">
-        <div class="button-group left">
-          <button class="square-button">Challenge Inbox</button>
-          <button class="square-button" @click="fetchPersonalChallenges">Challenges in Progress</button>
-          <button class="square-button">Send Challenges</button>
-        </div>
-        <div class="button-group right">
-          <button class="square-button">User Profile</button>
+        <div class="button-group top">
           <button class="square-button" @click="fetchUserBadges">Badges</button>
+        </div>
+        <div class="button-group bottom">
+          <button class="square-button" @click="fetchPersonalChallenges">Challenges in Progress</button>
           <button class="square-button" @click="toggleEcoPoints">{{ ecoPointsText }}</button>
         </div>
       </div>
@@ -51,24 +40,18 @@
         <span class="close" @click="showBadgesModal = false">&times;</span>
         <h2 class="modal-title">Your Badges</h2>
         <div class="badges-container">
-          <img 
-            v-for="badge in badges" 
-            :key="badge.id"
-            :src="getBadgeImagePath(badge)"
-            :alt="badge.name"
-            class="badge-image"
+          <img
+              v-for="badge in badges"
+              :key="badge.id"
+              :src="getBadgeImagePath(badge)"
+              :alt="badge.name"
+              class="badge-image"
           />
         </div>
       </div>
     </div>
-
-
-
   </div>
 </template>
-
-
-
 
 <script>
 import { mapGetters } from 'vuex';
@@ -80,15 +63,19 @@ export default {
   name: 'ChallengeCenter',
   computed: {
     ...mapGetters(['currentUser']),
+    // Ensure userID is available for all methods
+    userID() {
+      return this.currentUser ? this.currentUser.userId : null;
+    }
   },
   data() {
     return {
-      ecoPoints: 0, // Initial value of eco points
-      ecoPointsText: 'Eco-points', // Initial text of the button
-      challenges: [],  // Store challenges here
-      showModal: false,  // Control modal visibility
-      badges: [],  // Store badges here
-      showBadgesModal: false  // Control badges modal visibility
+      ecoPoints: 0,
+      ecoPointsText: 'Eco-points',
+      challenges: [],
+      showModal: false,
+      badges: [],
+      showBadgesModal: false
     };
   },
   methods: {
@@ -96,25 +83,60 @@ export default {
       this.$router.push({ name: routeName });
     },
     toggleEcoPoints() {
-      if (this.ecoPointsText === 'Eco-points') {
-        // Update eco points value (for demonstration, you can update it dynamically in your actual app)
-        this.ecoPoints = 0; // Change this value to the desired eco points
-        this.ecoPointsText = `You have ${this.ecoPoints} eco points`;
-      } else {
-        this.ecoPointsText = 'Eco-points';
+      if (!this.userID) {
+        alert("Please log in to access eco points.");
+        return;
       }
-      // esteban commits for api requests and handling the data
+      if (this.ecoPointsText === 'Eco-points') {
+        // Fetch the impact details
+        this.getImpactDetails().then(() => {
+          // Assuming impact score is part of the impactDetails
+          if (this.impactDetails && this.impactDetails.impact_score !== undefined) {
+            this.ecoPoints = this.impactDetails.impact_score; // Set eco points to the impact score
+            this.ecoPointsText = `You have ${this.ecoPoints} eco points`; // Update display text
+          } else {
+            console.error("Impact score is not available.");
+            this.ecoPointsText = 'No impact score available';
+          }
+        }).catch(error => {
+          console.error('Failed to fetch impact details:', error);
+          this.ecoPointsText = 'Failed to load eco points';
+        });
+      } else {
+        this.ecoPointsText = 'Eco-points'; // Reset to default text when toggled again
+      }
+    },
+
+    async getImpactDetails() {
+      if (!this.userID) {
+        console.error('No user ID available to fetch impact details.');
+        return Promise.reject('No user ID provided');
+      }
+
+      try {
+        const response = await axios.get(`https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/get_impact/${this.userID}`);
+        if (response.data && Array.isArray(response.data) && response.data.length > 0) {
+          this.impactDetails = response.data[0];
+          console.log('Impact Details:', this.impactDetails);
+          return Promise.resolve();
+        } else {
+          console.error('Unexpected response format:', response.data);
+          return Promise.reject('Invalid response format');
+        }
+      } catch (error) {
+        console.error('Error fetching impact details:', error);
+        return Promise.reject(error);
+      }
     },
 
     fetchPersonalChallenges() {
-      console.log('Fetching personal challenges...');
-      if (!this.currentUser || !this.currentUser.userId) {
+      if (!this.userID) {
         console.error('User ID is not available.');
         return;
       }
+      console.log('Fetching personal challenges...');
 
-      const url = `https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/get_personal_challenges/${this.currentUser.userId}`;
-      console.log(this.currentUser.userId)
+      const url = `https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/get_personal_challenges/${this.userID}`;
 
       axios.get(url)
         .then(response => {
@@ -132,8 +154,12 @@ export default {
       },
 
       fetchUserBadges() {
+        if (!this.userID) {
+          console.error('User ID is not available.');
+          return;
+        }
         // Replace with your actual API call to fetch badges
-        const url = `https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/get_badges/${this.currentUser.userId}`;
+        const url = `https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/get_badges/${this.userID}`;
 
         axios.get(url)
           .then(response => {
@@ -148,15 +174,11 @@ export default {
             console.error("Error:", error.response);
           });
       },
-      
+
       getBadgeImagePath(badgeName) {
         // Requires the image from the assets folder so webpack can process it
         return require(`@/assets/Badges/${badgeName}.png`);
       },
-
-
-
-
   }
 }
 </script>
@@ -164,89 +186,76 @@ export default {
 
 <style scoped>
 .Gamification {
-  font-family: 'Roboto', sans-serif; /* Consistency in typography */
-  color: #333; /* Darker text for better readability */
-  background: #e4fcec; /* Consistent green background across the app */
+  font-family: 'Roboto', sans-serif;
+  color: #333;
+  background: #e4fcec;
   padding: 2rem;
-  border-radius: 10px; /* Rounded corners for the outer container */
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-  max-width: 800px; /* Limiting max width for better layout control */
-  margin: 2rem auto; /* Centering the main container */
-}
-
-
-.dashboard-nav {
-  background-color: #4CAF50; /* Consistent green color */
-  padding: 10px;
-  text-align: center;
   border-radius: 10px;
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-}
-
-.dashboard-nav button {
-  background-color: #8BC34A;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  margin: 0 5px;
-  cursor: pointer;
-  border-radius: 5px;
-  transition: background-color 0.3s, transform 0.1s;
-}
-
-.dashboard-nav button:hover {
-  background-color: #7CB342;
-  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  max-width: 800px;
+  margin: 2rem auto;
 }
 
 header {
-  background: linear-gradient(to right, #4CAF50, #8BC34A); /* Green gradient header */
+  background: linear-gradient(to right, #4CAF50, #8BC34A);
   color: white;
   padding: 1rem 0;
-  border-radius: 8px 8px 0 0; /* Rounded top corners */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Shadow for header */
+  border-radius: 8px 8px 0 0;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   text-align: center;
-  font-size: 2.5rem; /* Prominent header size */
+  font-size: 1.5rem;
+  position: relative;
+}
+
+.logout-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 5px 15px;
+  background: #FF6347;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  border: none;
 }
 
 main {
   padding: 20px;
   display: flex;
-  flex-direction: column; /* Ensures vertical layout of content */
-  align-items: center; /* Center aligns the child elements */
+  flex-direction: column;
+  align-items: center;
 }
 
 .button-container {
   display: flex;
-  justify-content: space-around; /* Evenly spaces the button groups */
-  flex-wrap: wrap; /* Allows button groups to wrap on smaller screens */
-  width: 100%; /* Full width to utilize space */
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
 }
 
 .button-group {
   display: flex;
-  flex-direction: column;
-  align-items: center; /* Centering buttons in their groups */
+  justify-content: center;
   padding: 10px;
+  margin-bottom: 20px;
 }
 
 .square-button {
-  width: 150px; /* Smaller width for better fit */
-  height: 150px; /* Maintaining square shape */
+  width: 150px;
+  height: 150px;
   margin: 10px;
   border: none;
-  background-color: #8BC34A; /* Lighter green for buttons */
+  background-color: #8BC34A;
   cursor: pointer;
-  border-radius: 10px; /* Rounded corners for buttons */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Consistent shadow styling */
-  transition: background-color 0.3s, transform 0.1s; /* Smooth transition for interactive feedback */
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.3s, transform 0.1s;
 }
 
 .square-button:hover {
-  background-color: #7CB342; /* Slightly darker green on hover */
-  transform: translateY(-2px); /* Subtle lift effect on hover */
+  background-color: #7CB342;
+  transform: translateY(-2px);
 }
 
 .modal {
@@ -296,17 +305,13 @@ th {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  padding: 1rem;
+  padding: 0.1rem;
 }
 
 .badge-image {
-  max-width: 250px; /* Increase the size as needed */
-  margin: 1rem; /* Adjust spacing around images */
-  border: 3px solid #4CAF50; /* Optional border */
-  border-radius: 50%; /* Circular badges */
-  /* If you want the images to be responsive to the size of the container, you can also use width in percentage, like width: 25%; */
+  max-width: 250px;
+  margin: 1rem;
+  border: 3px solid #4CAF50;
+  border-radius: 50%;
 }
-
-
-
 </style>

@@ -1,12 +1,5 @@
 <template>
   <div class="impact-calculator">
-
-    <!-- Dashboard Navigation Bar -->
-    <div class="dashboard-nav">
-      <button @click="navigateTo('ChallengeCenter')">Go to ChallengeCenter</button>
-      <!-- Add more buttons as needed for other navigation links -->
-    </div>
-
     <!-- Header -->
     <header>
       <h1>Impact Calculator</h1>
@@ -16,6 +9,7 @@
     <div class="image-actions">
 
       <div class="image-action">
+        <div class="action-label">Log Water Intake</div>
         <img src="@/assets/waterbottle.png" alt="Bottle Image" @click="addBottle($refs.bottlePicker.value)" />
         <select ref="bottlePicker" name="bottle" class="child bottle" id="bottlepicker">
           <!-- Bottle options -->
@@ -29,36 +23,30 @@
           <option value="rm17">Reusable Metal 17 oz</option>
           <option value="rm25">Reusable Metal 25 oz</option>
         </select>
-
-        
-
-
       </div>
 
       <div class="image-action">
-        <img src="@/assets/leaf.png" alt="Leaf Image" @click="generateImpactScore()" />
+        <div class="action-label">View Total Impact</div>
+        <img src="@/assets/leaf.png" alt="Leaf Image" @click="displayImpactScore()" />
         <!-- Removed the regular "Generate Score" button -->
         <div v-if="showImpactScore" class="results">
           <div id="scoreDisplay" class="display">{{ impactScore }}</div>
         </div>
-
       </div>
 
       <div class="image-action">
-        <img src="@/assets/saving.png" alt="Saving Image" @click="getSavings()" />
+        <div class="action-label">View Total Savings</div>
+        <img src="@/assets/saving.png" alt="Saving Image" @click="displaySavings()" />
         <!-- Removed the regular "Click To Get Your Savings!" button -->
         <div v-if="showSavings" class="results">
           <div id="savingsDisplay" class="display">{{ savingsAmount }}</div>
         </div>
       </div>
-
     </div>
-
-    <!-- Comment out or remove this section if it's the source of duplication -->
-    <!-- <div class="results">
-      <div id="scoreDisplay" class="display">{{ impactScore }}</div>
-      <div id="savingsDisplay" class="display">{{ savingsAmount }}</div>
-    </div> -->
+  </div>
+  <toast-component ref="toast" :message="toastMessage" />
+  <div v-if="loading" class="loading-overlay">
+    Loading...
   </div>
 </template>
 
@@ -66,11 +54,24 @@
 <script>
 
 import axios from 'axios';
+import { mapGetters } from 'vuex';
+import ToastComponent from './ToastComponent.vue';
 
 export default {
   name: 'ImpactCalculator',
+  components: {
+    ToastComponent,
+  },
+  computed: {
+    ...mapGetters(['currentUser']),
+    // Use a computed property to react to changes in currentUser
+    userID() {
+      return this.currentUser ? this.currentUser.userId : null;
+    }
+  },
   data() {
     return {
+      loading: false,
       bottleCounts: {
         'dp8': 0,
         'dp12': 0,
@@ -81,12 +82,25 @@ export default {
         'rm17': 0,
         'rm25': 0
       },
+      bottleTypeMap: {
+        'dp8': 'single-use',
+        'dp12': 'single-use',
+        'dp16.9': 'single-use',
+        'rp17': 'refillable',
+        'rp25': 'refillable',
+        'rm12': 'refillable',
+        'rm17': 'refillable',
+        'rm25': 'refillable'
+      },
       savingsClickCount: 0,
       impactScore: '',
       savingsAmount: '',
       showImpactScore: false,
       showSavings: false,
-      userID: 1,
+      bottleType: '',
+      lastAddedBottleType: '',
+      impactDetails: {},
+      toastMessage: '',
     };
   },
   methods: {
@@ -96,197 +110,118 @@ export default {
     },
 
     addBottle(bottleType) {
+      if (!this.userID) {
+        this.toastMessage = "Please log in to log water usage.";
+        this.$refs.toast.showToast(3000, 'error', this.toastMessage);
+        return;
+      }
       if (bottleType !== "pick") {
         this.bottleCounts[bottleType]++;
+        this.lastAddedBottleType = bottleType;  // store the actual bottle type code
+        this.bottleType = this.bottleTypeMap[bottleType]; // Map the bottle type for API call
         console.log(`${this.bottleCounts[bottleType]} ${bottleType} added.`);
         console.log("Current Bottle Counts:", this.bottleCounts);
+        console.log("Mapped Bottle Type for API:", this.bottleType);
+
+        // Call logWaterUsage to send data to the backend
+        this.logWaterUsage();
       }
     },
-
-    generateImpactScore() {
-      // Points assigned to each bottle type
-      const pointsPerBottle = {
-        'dp8': 1,    // 8 oz bottle = 1 point
-        'dp12': 3,   // 12 oz = 3 points
-        'dp16.9': 5, // 16 oz = 5 points
-        // The rest don't contribute to the total points
-      };
-
-      // Calculate the total impact score
-      let score = 0;
-      for (const bottleType in this.bottleCounts) {
-        if (Object.hasOwnProperty.call(pointsPerBottle, bottleType)) {
-          score += this.bottleCounts[bottleType] * pointsPerBottle[bottleType];
-        }
-      }
-
-      // Update the impactScore state
-      this.impactScore = score;
-      console.log("Impact Score generated:", this.impactScore);
-
-      // Show the impact score
-      this.showImpactScore = true;
-    },
-
-    getSavings() {
-      // Calculate the total number of bottles
-      const totalBottles = Object.values(this.bottleCounts).reduce((total, count) => total + count, 0);
-
-      // Calculate the savings using a logarithmic function
-      const baseValue = 5; // Smaller base value for harsher savings growth
-      const dampeningFactor = 1; // Adds a constant inside the log to lower the savings growth rate
-
-      // Apply the dampening factor to make the ceiling lower and harsher
-      // Now using totalBottles as the input for the logarithm function
-      let calculatedSavings = Math.log(totalBottles + dampeningFactor) * baseValue;
-
-      // Use a fractional multiplier to further control the rate of growth
-      const growthRate = 0.7; // Lower this value to make the growth even harsher
-      calculatedSavings *= growthRate;
-
-      // Optional: round the savings to two decimal places
-      calculatedSavings = calculatedSavings.toFixed(2);
-
-      // Update the savingsAmount with the dollar sign
-      this.savingsAmount = `$${calculatedSavings}`;
-
-      console.log("Savings Score generated:", this.savingsAmount);
-
-      // Show the savings amount
-      this.showSavings = true;
-    },
-
-    /*
-    async fetchUserProfile() {
-      // Make the API request to fetch user profile data
-      try {
-        // Replace 'http://127.0.0.1:8000/view_profile/${this.userId}' with your actual API endpoint
-        // http://127.0.0.1:8000
-        // https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com
-        const response = await axios.get(`http://127.0.0.1:8000/view_profile/${this.userID}`);
-        const profileData = response.data;
-
-        // Update the component's data properties with the fetched profile data
-        this.username = profileData.username;
-        this.email = profileData.email;
-        this.profilePicture = profileData.profilePicture;
-        this.ecoPoints = profileData.ecoPoints;
-        this.receiveNotifications = profileData.receiveNotifications;
-        this.privacySettings = profileData.privacySettings;
-        this.badges = profileData.badges;
-
-        // Log the retrieved profile data
-        console.log(profileData);
-      } catch (error) {
-        console.error(error);
-      }
-    },
-    */
-
 
     // this mount function will make the API call to get the data
     mounted() {
-      this.fetchData();
+      if (!this.userID) {
+        console.warn("User is not logged in.");
+      }
+      this.getImpactDetails();
     },
 
     // this function will make the API call to get the data
     async logWaterUsage() {
-      // try to get the data from the API 
+      this.loading = true;
       try {
-        // pass json data to the API of userid, bottle type, and the count of bottles
         const response = await axios.post('https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/log_water_usage', {
           user_id: this.userID,
           bottle_type: this.bottleType,
-          count: this.bottleCounts
-        })
-
-        // get the bottle counts
-        console.log(response.data)
-
-      } catch (error) {
-        // if there is an error, log the error
-        console.error(error)
-      }
-    },
-
-    // this function will make an API call to get the impact score
-    async getImpactScore() {
-      // try to get the data from the API 
-      try {
-        // pass json data to the API of the user id and total impact score
-        const response = await axios.get(`https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/get_impact/${this.userID}`);
-        const userData = response.data;
-        this.userID = userData.user_id;
-        this.impactScore = userData.total_impacts;
-
-        // get the impact score
-        console.log(response.data);
-      } catch (error) {
-        // if there is an error, log the error
-        console.error(error);
-      }
-    },
-
-    // this function will make an API call to get the savings amount
-    async getsavings() {
-
-      // try to get the data from the API 
-      try {
-        // pass json data to the API of the user id and the savings amount
-        // http://127.0.0.1:8000
-        // https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com
-        const response = await axios.get(`http://127.0.0.1:8000/get_impact/${this.userID}`);
-        const userData = response.data;
-        this.userID = userData.user_id;
-
-        userData.array.forEach(impact => {
-          console.log(impact.money_saved);
+          count: this.bottleCounts[this.lastAddedBottleType]
         });
-
-        this.savingsAmount = userData[0].money_saved;
-
-        // get the savings amount
+        console.log(`Logged ${this.bottleCounts[this.lastAddedBottleType]} ${this.bottleType} bottles.`);
         console.log(response.data);
-      } catch (error) {
-        // if there is an error, log the error
-        console.error(error);
-      }
-    }
 
+        // Reset the count for this bottle type after logging
+        this.bottleCounts[this.lastAddedBottleType] = 0;
+
+        // Set a success message and specify the type as 'success'
+        this.toastMessage = 'Water usage logged successfully!';
+        this.$refs.toast.showToast(3000, 'success', this.toastMessage);
+
+      } catch (error) {
+        console.error("Error during logWaterUsage:", error);
+
+        // Set an error message and specify the type as 'error'
+        this.toastMessage = 'Failed to log water usage.';
+        this.$refs.toast.showToast(3000, 'error', this.toastMessage);
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    // Methods to fetch and display data when clicked
+    displayImpactScore() {
+      this.getImpactDetails().then(() => {
+        if (this.impactDetails && this.impactDetails.impact_score !== undefined) {
+          this.impactScore = this.impactDetails.impact_score;
+          this.showImpactScore = true;
+        } else {
+          console.error('Impact score is not available.');
+          this.showImpactScore = false; // Ensure the UI reflects that data isn't available
+        }
+      }).catch(error => {
+        console.error('Error while fetching and displaying impact score:', error);
+      });
+    },
+
+    displaySavings() {
+      this.getImpactDetails().then(() => {
+        if (this.impactDetails && this.impactDetails.money_saved !== undefined) {
+          this.savingsAmount = `$${this.impactDetails.money_saved}`;
+          this.showSavings = true;
+        } else {
+          console.error('Savings amount is not available.');
+          this.showSavings = false; // Ensure the UI reflects that data isn't available
+        }
+      }).catch(error => {
+        console.error('Error while fetching and displaying savings:', error);
+      });
+    },
+
+// Updated getImpactDetails method to return a Promise
+    async getImpactDetails() {
+      if (!this.userID) {
+        console.error('No user ID available to fetch impact details.');
+        return Promise.reject('No user ID provided');
+      }
+
+      try {
+        const response = await axios.get(`https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/get_impact/${this.userID}`);
+        if (response.data && Array.isArray(response.data) && response.data.length > 0) {
+          this.impactDetails = response.data[0];
+          console.log('Impact Details:', this.impactDetails);
+          return Promise.resolve();
+        } else {
+          console.error('Unexpected response format:', response.data);
+          return Promise.reject('Invalid response format');
+        }
+      } catch (error) {
+        console.error('Error fetching impact details:', error);
+        return Promise.reject(error);
+      }
+    },
   }
 }
-
-
-
 </script>
 
 <style scoped>
-
-.dashboard-nav {
-  background-color: #4CAF50; /* Your green color */
-  padding: 10px;
-  text-align: center;
-  border-radius: 10px; /* Rounded corners for the dashboard */
-  display: flex; /* Use flexbox to align buttons */
-  justify-content: center; /* Center buttons horizontally */
-  gap: 10px; /* Adds space between buttons */
-}
-
-.dashboard-nav button {
-  background-color: #8BC34A; /* Lighter green for buttons */
-  color: white;
-  border: none;
-  padding: 5px 10px; /* Reduced padding */
-  cursor: pointer;
-  border-radius: 5px; /* Slightly rounded corners for buttons */
-  white-space: nowrap; /* Prevent text wrapping in buttons */
-  display: inline-block; /* Ensures buttons don't stretch */
-  box-sizing: border-box; /* Includes padding in width calculation */
-}
-
-.dashboard-nav button:hover {
-  background-color: #7CB342; /* Slightly darker green on hover */
-}
 
 /* Main layout and typography */
 .impact-calculator {
@@ -370,6 +305,15 @@ header::after {
   margin-bottom: 20px;
   width: 200px;
 }
+
+.action-label {
+  font-size: 16px;
+  font-weight: bold;
+  color: #4CAF50; /* You can adjust the color to fit your design */
+  text-align: center;
+  margin-bottom: 5px; /* Spacing between the label and the image */
+}
+
 
 
 .image-action img {
@@ -470,6 +414,20 @@ header::after {
   /* Glowing effect to match focus */
   outline: none;
   /* Remove the default focus outline */
+}
+
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.5em;
 }
 
 
