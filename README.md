@@ -1,5 +1,5 @@
-
-
+## Branch
+Please check version 1 and 2 for branches where our application was developed.
 
 ## Video Link to web application
 The video link to how the application works: https://github.com/pxd222PranavDhinakar/Green-Wave/assets/118007706/43f31535-719c-4fe5-a7e7-846904f29468
