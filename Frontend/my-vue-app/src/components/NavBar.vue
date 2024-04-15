@@ -5,6 +5,7 @@
       <li><router-link to="/" exact-active-class="active">Home</router-link></li>
       <li v-if="isLoggedIn"><router-link to="/calculator" active-class="active">Impact Calculator</router-link></li>
       <li v-if="isLoggedIn"><router-link to="/gamification" active-class="active">Challenge Center</router-link></li>
+       <li v-if="isLoggedIn"><router-link to="/socialmedia" active-class="active">SocialMedia</router-link></li>
       <li v-if="!isLoggedIn"><router-link to="/login" active-class="active">Login</router-link></li>
       <li v-if="!isLoggedIn"><router-link to="/register" active-class="active">Register</router-link></li>
       <li v-if="isLoggedIn"><router-link to="/profile" active-class="active">Profile</router-link></li>
