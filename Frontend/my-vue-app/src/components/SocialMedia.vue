@@ -1,3 +1,4 @@
+
 <template>
     <div class="social-media-component">
 
@@ -53,92 +54,6 @@
     </div>
 </template>
 
-
-<style scoped>
-
-.social-media-component {
-    /* Styles that apply to the whole component */
-}
-
-.image-action{
-    /* Styles that apply to the first photo */
-    /* make image smaller */
-    
-    /* add padding */
-    /* add border */
-    /* add border radius */
-    /* add margin */
-    /* add box shadow */
-    /* add hover effect */
-    /* add cursor pointer */
-    /* add transition */
-}
-main {
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.button-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-}
-
-.button-group {
-    display: flex;
-    justify-content: center;
-    padding: 10px;
-    margin-bottom: 20px;
-}
-
-.square-button {
-    width: 150px;
-    height: 150px;
-    margin: 10px;
-    border: none;
-    background-color: #8BC34A;
-    cursor: pointer;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    transition: background-color 0.3s, transform 0.1s;
-}
-
-.square-button:hover {
-    background-color: #7CB342;
-    transform: translateY(-2px);
-}
-
-.modal {
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.modal-content {
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 80%;
-    max-width: 600px;
-}
-
-
-/* Add other CSS styles to match the design of the second photo */
-</style>
-
-
-
 <script>
 
 import axios from 'axios';
@@ -147,12 +62,11 @@ import { mapGetters } from 'vuex';
 
 export default {
         computed: {
-            ...mapGetters(['currentUser']),
-
-            // get user id is available for the methods 
-            getUserId() {
-                return this.currentUser ? this.currentUser.user_id : null;
-            }
+          ...mapGetters(['currentUser']),
+          // Use a computed property to react to changes in currentUser
+          userID() {
+            return this.currentUser ? this.currentUser.userId : null;
+          }
         },
 
         name: 'SocialMedia',
@@ -176,20 +90,18 @@ export default {
                     console.error('Id is empty');
                     return;
                 }
-
-                console.log('Post content:', this.postContent);
+                this.postContent = "This is a test post";
             
-                const url = `https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/get_personal_challenges/${this.userID}`;
+                const url = `https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/create_post`;
 
                 axios.post(url, {
-                    user_id: this.getUserId,
+                    user_id: this.userID,
                     content: this.postContent
-                })
-                    .then(response => {
-                        if (response.status === 200) {
-                            console.log("post successful ")
-                            this.content = response.data;  // store post
-                            this.showModal = true; // show the modal
+                }).then(response => {
+                        if (response.status === 201) {
+                          console.log(response.data);
+                          this.content = response.data;  // store post
+                          this.showModal = true; // show the modal
                         }
                         else {
                             console.error('Post not found.');
@@ -223,3 +135,86 @@ export default {
 
     // You can add your JavaScript logic here
 </script>
+
+<style scoped>
+
+.social-media-component {
+  /* Styles that apply to the whole component */
+}
+
+.image-action{
+  /* Styles that apply to the first photo */
+  /* make image smaller */
+
+  /* add padding */
+  /* add border */
+  /* add border radius */
+  /* add margin */
+  /* add box shadow */
+  /* add hover effect */
+  /* add cursor pointer */
+  /* add transition */
+}
+main {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.button-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.button-group {
+  display: flex;
+  justify-content: center;
+  padding: 10px;
+  margin-bottom: 20px;
+}
+
+.square-button {
+  width: 150px;
+  height: 150px;
+  margin: 10px;
+  border: none;
+  background-color: #8BC34A;
+  cursor: pointer;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.3s, transform 0.1s;
+}
+
+.square-button:hover {
+  background-color: #7CB342;
+  transform: translateY(-2px);
+}
+
+.modal {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 80%;
+  max-width: 600px;
+}
+
+
+/* Add other CSS styles to match the design of the second photo */
+</style>
