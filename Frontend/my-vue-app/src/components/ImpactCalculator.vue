@@ -1,19 +1,22 @@
 <template>
+  <!-- Main template for the Impact Calculator component -->
   <div class="impact-calculator">
-    <!-- Header -->
+    <!-- Header section -->
     <header>
       <h1>Impact Calculator</h1>
     </header>
 
-    <!-- Image Actions -->
+    <!-- Image Actions section -->
     <div class="image-actions">
-
+      <!-- Image Action for logging water intake -->
       <div class="image-action">
         <div class="action-label">Log Water Intake</div>
         <img src="@/assets/waterbottle.png" alt="Bottle Image" @click="addBottle($refs.bottlePicker.value)" />
+        <!-- Dropdown to select bottle type -->
         <select ref="bottlePicker" name="bottle" class="child bottle" id="bottlepicker">
           <!-- Bottle options -->
           <option value="pick">Pick a bottle!</option>
+          <!-- Options for different types of bottles -->
           <option value="dp8">Disposable Plastic 8oz</option>
           <option value="dp12">Disposable Plastic 12oz</option>
           <option value="dp16.9">Disposable Plastic 16.9oz</option>
@@ -24,27 +27,31 @@
           <option value="rm25">Reusable Metal 25 oz</option>
         </select>
       </div>
-
+      
+      <!-- Image Action for viewing total impact -->
       <div class="image-action">
         <div class="action-label">View Total Impact</div>
         <img src="@/assets/leaf.png" alt="Leaf Image" @click="displayImpactScore()" />
-        <!-- Removed the regular "Generate Score" button -->
+        <!-- Display impact score when available -->
         <div v-if="showImpactScore" class="results">
           <div id="scoreDisplay" class="display">{{ impactScore }}</div>
         </div>
       </div>
 
+      <!-- Image Action for viewing total savings -->
       <div class="image-action">
         <div class="action-label">View Total Savings</div>
         <img src="@/assets/saving.png" alt="Saving Image" @click="displaySavings()" />
-        <!-- Removed the regular "Click To Get Your Savings!" button -->
+        <!-- Display savings amount when available -->
         <div v-if="showSavings" class="results">
           <div id="savingsDisplay" class="display">{{ savingsAmount }}</div>
         </div>
       </div>
     </div>
   </div>
+  <!-- Toast component for displaying messages -->
   <toast-component ref="toast" :message="toastMessage" />
+  <!-- Loading overlay when performing async tasks -->
   <div v-if="loading" class="loading-overlay">
     Loading...
   </div>
@@ -52,27 +59,29 @@
 
 
 <script>
-
+// Import necessary dependencies
 import axios from 'axios';
 import { mapGetters } from 'vuex';
 import ToastComponent from './ToastComponent.vue';
 
+// Export the Vue component
 export default {
-  name: 'ImpactCalculator',
+  name: 'ImpactCalculator', // Component name
   components: {
-    ToastComponent,
+    ToastComponent, // Register the ToastComponent
   },
   computed: {
-    ...mapGetters(['currentUser']),
-    // Use a computed property to react to changes in currentUser
+    ...mapGetters(['currentUser']), // Map getters from Vuex store
+    // Computed property to get user ID
     userID() {
       return this.currentUser ? this.currentUser.userId : null;
     }
   },
   data() {
+    // Initial data for the component
     return {
-      loading: false,
-      bottleCounts: {
+      loading: false, // Loading state
+      bottleCounts: { // Object to store counts of different bottle types
         'dp8': 0,
         'dp12': 0,
         'dp16.9': 0,
@@ -82,7 +91,7 @@ export default {
         'rm17': 0,
         'rm25': 0
       },
-      bottleTypeMap: {
+      bottleTypeMap: { // Mapping of bottle types
         'dp8': 'single-use',
         'dp12': 'single-use',
         'dp16.9': 'single-use',
@@ -92,29 +101,31 @@ export default {
         'rm17': 'refillable',
         'rm25': 'refillable'
       },
-      savingsClickCount: 0,
-      impactScore: '',
-      savingsAmount: '',
-      showImpactScore: false,
-      showSavings: false,
-      bottleType: '',
-      lastAddedBottleType: '',
-      impactDetails: {},
-      toastMessage: '',
+      savingsClickCount: 0, // Count of savings clicks
+      impactScore: '', // Total impact score
+      savingsAmount: '', // Total savings amount
+      showImpactScore: false, // Flag to show impact score
+      showSavings: false, // Flag to show savings amount
+      bottleType: '', // Current selected bottle type
+      lastAddedBottleType: '', // Last added bottle type
+      impactDetails: {}, // Details of the impact
+      toastMessage: '', // Message for toast component
     };
   },
   methods: {
-
+    // Method to navigate to a page
     navigateTo(page) {
       this.$router.push({ name: page });
     },
-
+    // Method to add a bottle
     addBottle(bottleType) {
+      // Check if user is logged in
       if (!this.userID) {
         this.toastMessage = "Please log in to log water usage.";
         this.$refs.toast.showToast(3000, 'error', this.toastMessage);
         return;
       }
+      // Add bottle to counts
       if (bottleType !== "pick") {
         this.bottleCounts[bottleType]++;
         this.lastAddedBottleType = bottleType;  // store the actual bottle type code
@@ -123,7 +134,7 @@ export default {
         console.log("Current Bottle Counts:", this.bottleCounts);
         console.log("Mapped Bottle Type for API:", this.bottleType);
 
-        // Call logWaterUsage to send data to the backend
+        // Log water usage
         this.logWaterUsage();
       }
     },
@@ -136,7 +147,7 @@ export default {
       this.getImpactDetails();
     },
 
-    // this function will make the API call to get the data
+    // Method to log water usage
     async logWaterUsage() {
       this.loading = true;
       try {
@@ -148,17 +159,17 @@ export default {
         console.log(`Logged ${this.bottleCounts[this.lastAddedBottleType]} ${this.bottleType} bottles.`);
         console.log(response.data);
 
-        // Reset the count for this bottle type after logging
+        // Reset count after logging
         this.bottleCounts[this.lastAddedBottleType] = 0;
 
-        // Set a success message and specify the type as 'success'
+        // Show success message
         this.toastMessage = 'Water usage logged successfully!';
         this.$refs.toast.showToast(3000, 'success', this.toastMessage);
 
       } catch (error) {
         console.error("Error during logWaterUsage:", error);
 
-        // Set an error message and specify the type as 'error'
+        // Show error message
         this.toastMessage = 'Failed to log water usage.';
         this.$refs.toast.showToast(3000, 'error', this.toastMessage);
       } finally {
@@ -166,7 +177,7 @@ export default {
       }
     },
 
-    // Methods to fetch and display data when clicked
+    // Method to display impact score
     displayImpactScore() {
       this.getImpactDetails().then(() => {
         if (this.impactDetails && this.impactDetails.impact_score !== undefined) {
@@ -181,6 +192,7 @@ export default {
       });
     },
 
+    // Method to display savings amount
     displaySavings() {
       this.getImpactDetails().then(() => {
         if (this.impactDetails && this.impactDetails.money_saved !== undefined) {
@@ -195,7 +207,7 @@ export default {
       });
     },
 
-// Updated getImpactDetails method to return a Promise
+    // Method to fetch impact details
     async getImpactDetails() {
       if (!this.userID) {
         console.error('No user ID available to fetch impact details.');
