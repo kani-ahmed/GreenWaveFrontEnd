@@ -1,48 +1,63 @@
-// src/store/index.js
+// store/index.js
+
 import { createStore } from 'vuex';
 import axios from 'axios';
-import router from '../router';  // Import router
+import router from '../router';
 
 const store = createStore({
   state() {
     return {
-      currentUser: null
+      currentUser: null,
+      isLoading: false,
+      loginError: null
     };
   },
   mutations: {
     setCurrentUser(state, userData) {
       state.currentUser = userData;
+    },
+    setLoading(state, status) {
+      state.isLoading = status;
+    },
+    setLoginError(state, error) {
+      state.loginError = error;
     }
   },
   actions: {
     loginUser({ commit }, credentials) {
-      const loginUrl = 'http://127.0.0.1:8000/login';
-      axios.post(loginUrl, credentials)
-        .then(response => {
-          if (response.status === 200 && response.data.user_id) {
-            commit('setCurrentUser', {
-              userId: response.data.user_id,
-              // possibly other user data
-            });
-            localStorage.setItem('currentUser', JSON.stringify({
-              userId: response.data.user_id
-            }));
-            router.push('/calculator');  // Redirect to Impact Calculator
-          } else {
-            console.error('Login failed:', response.data);
-          }
-        })
-        .catch(error => {
-          console.error('Error during login:', error);
-        });
+      commit('setLoading', true);
+      commit('setLoginError', null);
+      const loginUrl = 'https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/login';
+      return axios.post(loginUrl, credentials)
+          .then(response => {
+            commit('setLoading', false);
+            if (response.data.user_id) {
+              commit('setCurrentUser', {
+                userId: response.data.user_id,
+              });
+              localStorage.setItem('currentUser', JSON.stringify({ userId: response.data.user_id }));
+              router.push('/calculator');
+            } else {
+              commit('setLoginError', 'Invalid login credentials.');
+              return false;
+            }
+          })
+          .catch(error => {
+            commit('setLoading', false);
+            commit('setLoginError', error.message);
+            throw error;
+          });
     },
     logoutUser({ commit }) {
-      commit('setCurrentUser', null);
       localStorage.removeItem('currentUser');
+      commit('setCurrentUser', null);
+      router.push('/login');
     }
   },
   getters: {
-    currentUser: state => state.currentUser
+    currentUser: state => state.currentUser,
+    isAuthLoading: state => state.isLoading,
+    loginErrorMessage: state => state.loginError
   }
 });
 

@@ -1,5 +1,6 @@
 <template>
   <div id="app">
+    <nav-bar></nav-bar>
     <div class="logo-wrapper">
       <img alt="Vue logo" src="./assets/logo.png" style="width: 500px;">
     </div>
@@ -8,8 +9,13 @@
 </template>
 
 <script>
+import NavBar from './components/NavBar.vue';
+
 export default {
-  name: 'App'
+  name: 'App',
+  components: {
+    NavBar
+  }
 }
 </script>
 
