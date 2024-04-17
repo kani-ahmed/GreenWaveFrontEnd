@@ -79,3 +79,28 @@ git push origin --delete feature/your-feature-name
 - **Documentation**: Update any relevant documentation as part of your changes, including this README if necessary.
 
 Adhering to this protocol helps us maintain a clean, stable, and efficient workflow, ensuring our project remains high-quality and collaborative. Thank you for contributing!
+
+
+### Running the Application
+
+To run the application locally, follow these steps:
+
+1. **Navigate to the Frontend Application Directory**:
+   ```bash
+   cd Frontend/my-vue-app
+   ```
+
+2. **Install Dependencies**:
+   Before running the application for the first time, you need to install its dependencies. Run the following command:
+   ```bash
+   npm install
+   ```
+
+3. **Start the Development Server**:
+   To start the application in development mode, run:
+   ```bash
+   npm run serve
+   ```
+   This command will start a local development server and open the application in your default web browser. You will also see any lint errors in the console.
+
+By including these steps in your README, you ensure that developers have clear and concise instructions on how to get the application running on their local machines.
