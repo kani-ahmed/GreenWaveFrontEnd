@@ -1,5 +1,7 @@
 <template>
+  <!-- Main container for the registration page -->
   <div class="RegisterPage">
+    <!-- Header section of the page containing the title -->
     <header>
       <h1>Green Wave</h1>
     </header>
@@ -10,14 +12,17 @@
           <label for="username">Username:</label>
           <input type="text" id="username" v-model="username" required>
         </div>
+        <!-- Form group for the email input -->
         <div class="form-group">
           <label for="email">Email:</label>
           <input type="email" id="email" v-model="email" required>
         </div>
+        <!-- Form group for the password input -->
         <div class="form-group">
           <label for="password">Password:</label>
           <input type="password" id="password" v-model="password" required>
         </div>
+        <!-- Submit button for the registration form -->
         <button type="submit">Register</button>
       </form>
     </div>
