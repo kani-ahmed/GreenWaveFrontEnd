@@ -33,7 +33,7 @@
     </div>
 
       <!-- Submit Button -->
-      <button class="submit-button">Send Community Challenge!</button>
+      <button class="submit-button" @click="sendChallenge()">Send Community Challenge!</button>
 
       <!-- Your content goes here -->
     </div>
@@ -42,8 +42,17 @@
 
 <script>
 import VueSelect from 'vue3-select'; // Import Vue 3 Select
+import axios from 'axios';
+import { mapGetters } from 'vuex';
 
 export default {
+  computed: {
+        ...mapGetters(['currentUser']),
+        // Use a computed property to react to changes in currentUser
+        userID() {
+            return this.currentUser ? this.currentUser.userId : null;
+        }
+    },
   name: 'SendChallenge',
   components: {
     VueSelect
@@ -54,34 +63,51 @@ export default {
       selectedUser: '',
       message: '',
       challenges: [
-    { value: 'Daily Quick Win: Use a paper straw [5 points]', label: 'Daily Quick Win: Use a paper straw [5 points]' },
-    { value: 'Weekly Warrior: Do not use any single-use water bottles for an entire week[50 points]', label: 'Weekly Warrior: Do not use any single-use water bottles for an entire week[50 points]' },
-    { value: 'Monthly Master: Avoid single-use plastics for an entire month[200 points]', label: 'Monthly Master: Avoid single-use plastics for an entire month[200 points]' },
-    { value: 'Yearly Hero: Reduce your yearly personal waste by 50% [1000 points]', label: 'Yearly Hero: Reduce your yearly personal waste by 50% [1000 points]' }
-  ],      
+    { value: 1, label: 'Daily Quick Win: Use a paper straw [5 points]' },
+    { value: 2, label: 'Weekly Warrior: Do not use any single-use water bottles for an entire week[50 points]' },
+    { value: 3, label: 'Monthly Master: Avoid single-use plastics for an entire month[200 points]' },
+    { value: 4, label: 'Yearly Hero: Reduce your yearly personal waste by 50% [1000 points]' }
+  ],  
     //users: ['Esteban Linarez', 'Kyle Kaufman', 'Preston DeLeo', 'Kani Ahmed', 'Pranav Dhinakar'] // Sample data for users
     };
   },
   methods: {
     sendChallenge() {
-      // Check if both a challenge and a user are selected
-      if (this.selectedChallenge) {
-        console.log(`Sending challenge "${this.selectedChallenge}" to user "${this.selectedUser}" with message: "${this.message}"`);
-        if (!this.userID) {
-                console.error('Id is empty');
-                return;
-            }
-        //const url = `https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/create_post`;
-
-        // Reset selected challenge, user, and message after sending
-        this.selectedChallenge = '';
-        this.selectedUser = '';
-        this.message = '';
-      } else {
-        // Display an error message if either challenge or user is not selected
-        console.error('Please select both a challenge and a user before sending.');
-      }
+  // Check if both a challenge and a user are selected
+  if (this.selectedChallenge && this.selectedChallenge.value) {
+      // Access the value property of selectedChallenge
+      const selectedChallengeValue = this.selectedChallenge.value;
+      console.log(`Sending challenge "${selectedChallengeValue}" with message: "${this.message}"`);
+    if (!this.userID) {
+      console.error('Id is empty');
+      return;
     }
+    const url = `https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/create_community_challenge`;
+    axios.post(url, {
+      challenge_id: selectedChallengeValue, // Use the ID of the selected challenge
+      created_by: this.userID
+    })
+    .then(response => {
+      if (response.status === 201) {
+        console.log(response.data);
+        this.content = response.data;
+        console.log(this.content);
+      } else {
+        console.error('Post not found.');
+      }
+    })
+    .catch(error => {
+      console.error("Error:", error.response);
+    });
+    // Reset selected challenge, user, and message after sending
+    this.selectedChallenge = '';
+    this.selectedUser = '';
+    this.message = '';
+  } else {
+    // Display an error message if either challenge or user is not selected
+    console.error('Please select both a challenge and a user before sending.');
+  }
+  }
   }
 }
 </script>
