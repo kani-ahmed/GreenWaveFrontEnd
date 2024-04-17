@@ -11,6 +11,8 @@
       <li v-if="isLoggedIn"><router-link to="/gamification" active-class="active">Challenge Center</router-link></li>
       <!-- Social Media link (visible if user is logged in) -->
       <li v-if="isLoggedIn"><router-link to="/socialmedia" active-class="active">Social Media</router-link></li>
+      <!-- Send Challenge link (visible if user is not logged in) -->
+      <li v-if="isLoggedIn"><router-link to="/sendchallenge" active-class="active">Create Community Challenges</router-link></li>
       <!-- Login link (visible if user is not logged in) -->
       <li v-if="!isLoggedIn"><router-link to="/login" active-class="active">Login</router-link></li>
       <!-- Register link (visible if user is not logged in) -->
