@@ -1,19 +1,22 @@
 <template>
+  <!-- Main template for the Impact Calculator component -->
   <div class="impact-calculator">
-    <!-- Header -->
+    <!-- Header section -->
     <header>
       <h1>Impact Calculator</h1>
     </header>
 
-    <!-- Image Actions -->
+    <!-- Image Actions section -->
     <div class="image-actions">
-
+      <!-- Image Action for logging water intake -->
       <div class="image-action">
         <div class="action-label">Log Water Intake</div>
         <img src="@/assets/waterbottle.png" alt="Bottle Image" @click="addBottle($refs.bottlePicker.value)" />
+        <!-- Dropdown to select bottle type -->
         <select ref="bottlePicker" name="bottle" class="child bottle" id="bottlepicker">
           <!-- Bottle options -->
           <option value="pick">Pick a bottle!</option>
+          <!-- Options for different types of bottles -->
           <option value="dp8">Disposable Plastic 8oz</option>
           <option value="dp12">Disposable Plastic 12oz</option>
           <option value="dp16.9">Disposable Plastic 16.9oz</option>
@@ -24,27 +27,31 @@
           <option value="rm25">Reusable Metal 25 oz</option>
         </select>
       </div>
-
+      
+      <!-- Image Action for viewing total impact -->
       <div class="image-action">
         <div class="action-label">View Total Impact</div>
         <img src="@/assets/leaf.png" alt="Leaf Image" @click="displayImpactScore()" />
-        <!-- Removed the regular "Generate Score" button -->
+        <!-- Display impact score when available -->
         <div v-if="showImpactScore" class="results">
           <div id="scoreDisplay" class="display">{{ impactScore }}</div>
         </div>
       </div>
 
+      <!-- Image Action for viewing total savings -->
       <div class="image-action">
         <div class="action-label">View Total Savings</div>
         <img src="@/assets/saving.png" alt="Saving Image" @click="displaySavings()" />
-        <!-- Removed the regular "Click To Get Your Savings!" button -->
+        <!-- Display savings amount when available -->
         <div v-if="showSavings" class="results">
           <div id="savingsDisplay" class="display">{{ savingsAmount }}</div>
         </div>
       </div>
     </div>
   </div>
+  <!-- Toast component for displaying messages -->
   <toast-component ref="toast" :message="toastMessage" />
+  <!-- Loading overlay when performing async tasks -->
   <div v-if="loading" class="loading-overlay">
     Loading...
   </div>
@@ -52,27 +59,29 @@
 
 
 <script>
-
+// Import necessary dependencies
 import axios from 'axios';
 import { mapGetters } from 'vuex';
 import ToastComponent from './ToastComponent.vue';
 
+// Export the Vue component
 export default {
-  name: 'ImpactCalculator',
+  name: 'ImpactCalculator', // Component name
   components: {
-    ToastComponent,
+    ToastComponent, // Register the ToastComponent
   },
   computed: {
-    ...mapGetters(['currentUser']),
-    // Use a computed property to react to changes in currentUser
+    ...mapGetters(['currentUser']), // Map getters from Vuex store
+    // Computed property to get user ID
     userID() {
       return this.currentUser ? this.currentUser.userId : null;
     }
   },
   data() {
+    // Initial data for the component
     return {
-      loading: false,
-      bottleCounts: {
+      loading: false, // Loading state
+      bottleCounts: { // Object to store counts of different bottle types
         'dp8': 0,
         'dp12': 0,
         'dp16.9': 0,
@@ -82,7 +91,7 @@ export default {
         'rm17': 0,
         'rm25': 0
       },
-      bottleTypeMap: {
+      bottleTypeMap: { // Mapping of bottle types
         'dp8': 'single-use',
         'dp12': 'single-use',
         'dp16.9': 'single-use',
@@ -92,29 +101,31 @@ export default {
         'rm17': 'refillable',
         'rm25': 'refillable'
       },
-      savingsClickCount: 0,
-      impactScore: '',
-      savingsAmount: '',
-      showImpactScore: false,
-      showSavings: false,
-      bottleType: '',
-      lastAddedBottleType: '',
-      impactDetails: {},
-      toastMessage: '',
+      savingsClickCount: 0, // Count of savings clicks
+      impactScore: '', // Total impact score
+      savingsAmount: '', // Total savings amount
+      showImpactScore: false, // Flag to show impact score
+      showSavings: false, // Flag to show savings amount
+      bottleType: '', // Current selected bottle type
+      lastAddedBottleType: '', // Last added bottle type
+      impactDetails: {}, // Details of the impact
+      toastMessage: '', // Message for toast component
     };
   },
   methods: {
-
+    // Method to navigate to a page
     navigateTo(page) {
       this.$router.push({ name: page });
     },
-
+    // Method to add a bottle
     addBottle(bottleType) {
+      // Check if user is logged in
       if (!this.userID) {
         this.toastMessage = "Please log in to log water usage.";
         this.$refs.toast.showToast(3000, 'error', this.toastMessage);
         return;
       }
+      // Add bottle to counts
       if (bottleType !== "pick") {
         this.bottleCounts[bottleType]++;
         this.lastAddedBottleType = bottleType;  // store the actual bottle type code
@@ -123,7 +134,7 @@ export default {
         console.log("Current Bottle Counts:", this.bottleCounts);
         console.log("Mapped Bottle Type for API:", this.bottleType);
 
-        // Call logWaterUsage to send data to the backend
+        // Log water usage
         this.logWaterUsage();
       }
     },
@@ -136,7 +147,7 @@ export default {
       this.getImpactDetails();
     },
 
-    // this function will make the API call to get the data
+    // Method to log water usage
     async logWaterUsage() {
       this.loading = true;
       try {
@@ -148,17 +159,17 @@ export default {
         console.log(`Logged ${this.bottleCounts[this.lastAddedBottleType]} ${this.bottleType} bottles.`);
         console.log(response.data);
 
-        // Reset the count for this bottle type after logging
+        // Reset count after logging
         this.bottleCounts[this.lastAddedBottleType] = 0;
 
-        // Set a success message and specify the type as 'success'
+        // Show success message
         this.toastMessage = 'Water usage logged successfully!';
         this.$refs.toast.showToast(3000, 'success', this.toastMessage);
 
       } catch (error) {
         console.error("Error during logWaterUsage:", error);
 
-        // Set an error message and specify the type as 'error'
+        // Show error message
         this.toastMessage = 'Failed to log water usage.';
         this.$refs.toast.showToast(3000, 'error', this.toastMessage);
       } finally {
@@ -166,7 +177,7 @@ export default {
       }
     },
 
-    // Methods to fetch and display data when clicked
+    // Method to display impact score
     displayImpactScore() {
       this.getImpactDetails().then(() => {
         if (this.impactDetails && this.impactDetails.impact_score !== undefined) {
@@ -181,6 +192,7 @@ export default {
       });
     },
 
+    // Method to display savings amount
     displaySavings() {
       this.getImpactDetails().then(() => {
         if (this.impactDetails && this.impactDetails.money_saved !== undefined) {
@@ -195,7 +207,7 @@ export default {
       });
     },
 
-// Updated getImpactDetails method to return a Promise
+    // Method to fetch impact details
     async getImpactDetails() {
       if (!this.userID) {
         console.error('No user ID available to fetch impact details.');
@@ -227,14 +239,13 @@ export default {
 .impact-calculator {
   font-family: 'Roboto', sans-serif;
   color: #333;
-  /*background: #f0f0f0; /* Subtle background color for the whole calculator */
+  /* Background color and styling for the calculator */
   padding: 2rem;
   border-radius: 10px;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
   max-width: 800px;
   margin: 2rem auto;
-  background: #e4fcec;
-  /* New green color for the impact calculator background */
+  background: #e4fcec; /* New green background color */
 }
 
 /* Header styles */
@@ -246,16 +257,13 @@ header {
   border-radius: 8px 8px 0 0;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   text-align: center;
-  z-index: 1;
-  /* Assuming this is lower than the image-actions */
-  position: relative;
-  /* For positioning the logo if needed */
+  z-index: 1; /* Higher stacking order than other elements */
+  position: relative; /* Positioning for potential logo placement */
 }
 
 h1 {
   margin: 0;
-  font-size: 2.5rem;
-  /* Larger font size for the title */
+  font-size: 2.5rem; /* Larger font size for the title */
 }
 
 /* Adding a textured or patterned background to the top part with the logo */
@@ -266,10 +274,8 @@ header::after {
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: url('@/assets/background.png');
-  /* Path to your background texture or pattern */
-  opacity: 0.2;
-  /* Adjust the opacity to not overpower the header text */
+  background-image: url('@/assets/background.png'); /* Path to your background texture or pattern */
+  opacity: 0.2; /* Adjust opacity for readability*/
   border-radius: 8px 8px 0 0;
 }
 
@@ -277,27 +283,18 @@ header::after {
 .image-actions {
   display: flex;
   justify-content: center;
-  flex-wrap: wrap;
-  /* Wrap items on smaller screens */
-  gap: 1rem;
-  /* Spacing between action items */
-  padding: 1rem;
-  /* Padding within the actions container */
-  background: white;
-  /* White background for the action area */
-  border-radius: 8px;
-  /* Rounded corners for the action area */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  /* Shadow for depth */
-  margin-top: -1rem;
-  /* Pull the action area up to overlap with the header */
-  z-index: 2;
-  /* Higher than the header */
-  position: relative;
-  /* z-index only works on positioned elements */
+  flex-wrap: wrap; /* Wrap items on smaller screens */
+  gap: 1rem; /* Spacing between action items */
+  padding: 1rem; /* Padding within the actions container */
+  background: white; /* White background for the action area */
+  border-radius: 8px; /* Rounded corners for the action area */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow for depth */
+  margin-top: -1rem; /* Overlap with the header */
+  z-index: 2; /* Higher stacking order than the header */
+  position: relative; /* Positioning for z-index */
 }
 
-
+/* Styles for individual image actions */
 .image-action {
   display: flex;
   flex-direction: column;
@@ -309,161 +306,134 @@ header::after {
 .action-label {
   font-size: 16px;
   font-weight: bold;
-  color: #4CAF50; /* You can adjust the color to fit your design */
+  color: #4CAF50; /* Color for the action label */
   text-align: center;
-  margin-bottom: 5px; /* Spacing between the label and the image */
+  margin-bottom: 5px; /* Spacing between label and image */
 }
 
-
-
+/* Styles for action images */
 .image-action img {
   width: 200px;
   height: 200px;
   object-fit: cover;
   cursor: pointer;
   margin-bottom: 10px;
-  transition: transform 0.1s, box-shadow 0.1s;
-  /* Add box-shadow to the transition */
-  border-radius: 10px;
-  /* Optional: if you want rounded corners */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  /* Soft shadow for depth */
+  transition: transform 0.1s, box-shadow 0.1s; /* Transition effects */
+  border-radius: 10px; /* Rounded corners */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Shadow for depth */
 }
 
 /* Button-like styles for images */
 .image-action img:active {
-  transform: scale(0.97);
-  /* Slightly smaller scale for a subtle click effect */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  /* Smaller shadow for the pressed state */
+  transform: scale(0.97); /* Slightly smaller scale for a subtle click effect */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Shadow for the pressed state */
 }
 
-
+/* Styles for action buttons */
 .image-action button {
   margin-top: 10px;
   padding: 8px 12px;
-  border: none;
-  /* Remove border for a cleaner look */
-  border-radius: 5px;
+  border: none; /* Remove border for a cleaner look */
+  border-radius: 5px; /* Rounded corners */
   cursor: pointer;
   width: 100%;
-  transition: background-color 0.3s, transform 0.1s, box-shadow 0.1s;
-  /* Add box-shadow to the transition */
-  background-image: linear-gradient(to top, #f5f5f5, #ffffff);
-  /* Subtle gradient effect */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  /* Soft shadow for depth */
+  transition: background-color 0.3s, transform 0.1s, box-shadow 0.1s; /* Transition effects */
+  background-image: linear-gradient(to top, #f5f5f5, #ffffff); /* Gradient effect */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Shadow for depth */
 }
 
 /* Button clicking effect */
 .image-action button:active {
-  background-image: linear-gradient(to top, #e6e6e6, #f5f5f5);
-  /* Darker gradient for the pressed state */
-  transform: translateY(2px);
-  /* Moves the button down to simulate a press */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  /* Smaller shadow for the pressed state */
+  background-image: linear-gradient(to top, #e6e6e6, #f5f5f5); /* Darker gradient for the pressed state */
+  transform: translateY(2px); /* Moves the button down to simulate a press */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Smaller shadow for the pressed state */
 }
 
+/* Styles for dropdown select */
 .image-action select {
-  padding: 10px 15px;
-  /* Slightly larger padding for a touch-friendly interface */
-  border: 2px solid #ccc;
-  /* Solid border that matches the theme */
-  border-radius: 5px;
-  /* Rounded corners */
-  background-color: white;
-  /* Background color */
-  font-size: 16px;
-  /* Larger font size for better readability */
+  padding: 10px 15px; /* Slightly larger padding for a touch-friendly interface */
+  border: 2px solid #ccc; /* Solid border that matches the theme */
+  border-radius: 5px; /* Rounded corners */
+  background-color: white; /* Background color */
+  font-size: 16px; /* Larger font size for better readability */
   cursor: pointer;
   width: 100%;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  /* Subtle shadow for depth */
-  appearance: none;
-  /* Remove default styling */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Shadow for depth */
+  appearance: none; /* Remove default styling */
   background-image:
     linear-gradient(45deg, transparent 50%, green 50%),
     linear-gradient(135deg, green 50%, transparent 50%),
-    linear-gradient(to right, #fff, #fff);
-  /* Custom arrow */
+    linear-gradient(to right, #fff, #fff); /* Custom arrow */
   background-position:
     calc(100% - 20px) calc(1em + 2px),
     calc(100% - 15px) calc(1em + 2px),
-    100% 0;
-  /* Arrow position */
+    100% 0; /* Arrow position */
   background-size:
     5px 5px,
     5px 5px,
-    2.5em 2.5em;
-  /* Arrow size */
+    2.5em 2.5em; /* Arrow size */
   background-repeat: no-repeat;
-  transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-  /* Smooth transition for interactive states */
+  transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out; /* Transition effects */
 }
 
+/* Hover styles for select */
 .image-action select:hover {
-  border-color: #a5a5a5;
-  /* Darken border on hover */
+  border-color: #a5a5a5; /* Darken border on hover */
 }
 
+/* Focus styles for select */
 .image-action select:focus {
-  border-color: #88c057;
-  /* Green border color for focus */
-  box-shadow: 0 0 8px rgba(136, 192, 87, 0.8);
-  /* Glowing effect to match focus */
-  outline: none;
-  /* Remove the default focus outline */
+  border-color: #88c057; /* Green border color for focus */
+  box-shadow: 0 0 8px rgba(136, 192, 87, 0.8); /* Glowing effect to match focus */
+  outline: none; /* Remove the default focus outline */
 }
 
+/* Loading overlay styles */
 .loading-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  color: white;
+  background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+  color: white; /* Text color */
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 1.5em;
+  font-size: 1.5em; /* Font size */
 }
 
 
 /* Styles from Results.vue */
 .results {
-  text-align: center;
-  margin-top: 20px;
-  font-family: 'Roboto', sans-serif;
+  text-align: center; /* Center-align text */
+  margin-top: 20px; /* Top margin */
+  font-family: 'Roboto', sans-serif; /* Font family */
 }
 
-
+/* Styles for display elements */
 .display {
-  font-size: 24px;
-  font-weight: bold;
-  color: white;
-  /* Default text color */
-  background-color: #3a3a3c;
-  /* Neutral dark background */
-  padding: 12px 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  margin: 10px 0;
-  display: inline-block;
-  animation: fadeInUp 0.5s ease-out;
+  font-size: 24px; /* Font size */
+  font-weight: bold; /* Bold font weight */
+  color: white; /* Text color */
+  background-color: #3a3a3c; /* Background color */
+  padding: 12px 20px; /* Padding */
+  border-radius: 10px; /* Rounded corners */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Shadow for depth */
+  margin: 10px 0; /* Margin */
+  display: inline-block; /* Display as inline-block */
+  animation: fadeInUp 0.5s ease-out; /* Fade-in animation */
 }
 
 #scoreDisplay {
-  background-color: #4CAF50;
-  /* Green for impact score */
+  background-color: #4CAF50; /* Green for impact score */
 }
 
 #savingsDisplay {
-  background-color: #2196F3;
-  /* Blue for savings amount */
+  background-color: #2196F3; /* Blue for savings amount */
 }
 
+/* Fade-in animation keyframes */
 @keyframes fadeInUp {
   from {
     opacity: 0;

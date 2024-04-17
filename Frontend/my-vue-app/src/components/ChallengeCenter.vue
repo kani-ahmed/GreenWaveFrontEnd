@@ -1,14 +1,20 @@
 <template>
+  <!-- Container for the Gamification component -->
   <div class="Gamification">
+    <!-- Header section -->
     <header>
       <h1>Challenge Center</h1>
     </header>
 
+    <!-- Main content section -->
     <main>
+      <!-- Button container for badges and challenges -->
       <div class="button-container">
+        <!-- Button group for badges -->
         <div class="button-group top">
           <button class="square-button" @click="fetchUserBadges">Badges</button>
         </div>
+        <!-- Button group for challenges -->
         <div class="button-group bottom">
           <button class="square-button" @click="fetchPersonalChallenges">Challenges in Progress</button>
           <button class="square-button" @click="toggleEcoPoints">{{ ecoPointsText }}</button>
@@ -16,16 +22,21 @@
       </div>
     </main>
 
+    <!-- Modal for displaying challenges in progress -->
     <div v-if="showModal" class="modal">
       <div class="modal-content">
+        <!-- Close button for the modal -->
         <span class="close" @click="showModal = false">&times;</span>
+        <!-- Title for the modal -->
         <h2>Challenges in Progress</h2>
+        <!-- Table to display challenges -->
         <table>
           <tr>
             <th>Name</th>
             <th>Description</th>
             <th>Status</th>
           </tr>
+          <!-- Loop through challenges and display details -->
           <tr v-for="challenge in challenges" :key="challenge.challenge_id">
             <td>{{ challenge.name }}</td>
             <td>{{ challenge.description }}</td>
@@ -35,11 +46,16 @@
       </div>
     </div>
 
+    <!-- Modal for displaying user badges -->
     <div v-if="showBadgesModal" class="modal">
       <div class="modal-content">
+        <!-- Close button for the modal -->
         <span class="close" @click="showBadgesModal = false">&times;</span>
+        <!-- Title for the modal -->
         <h2 class="modal-title">Your Badges</h2>
+        <!-- Container for displaying badges -->
         <div class="badges-container">
+          <!-- Loop through badges and display images -->
           <img
               v-for="badge in badges"
               :key="badge.id"
@@ -54,83 +70,83 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
-import axios from 'axios';
+import { mapGetters } from 'vuex'; // Importing Vuex mapGetters
+import axios from 'axios'; // Importing Axios for making HTTP requests
 
 
 
 export default {
-  name: 'ChallengeCenter',
+  name: 'ChallengeCenter', // Component name
   computed: {
-    ...mapGetters(['currentUser']),
+    ...mapGetters(['currentUser']), // Mapping currentUser getter from Vuex store
     // Ensure userID is available for all methods
-    userID() {
-      return this.currentUser ? this.currentUser.userId : null;
+    userID() { // Computed property to get the userID
+      return this.currentUser ? this.currentUser.userId : null; // If currentUser exists, return its userID, otherwise return null
     }
   },
   data() {
     return {
-      ecoPoints: 0,
-      ecoPointsText: 'Eco-points',
-      challenges: [],
-      showModal: false,
-      badges: [],
-      showBadgesModal: false
+      ecoPoints: 0, // Initial eco points
+      ecoPointsText: 'Eco-points', // Text displayed for eco points
+      challenges: [], // Array to store challenges
+      showModal: false, // Flag to control display of challenge modal
+      badges: [], // Array to store user badges
+      showBadgesModal: false // Flag to control display of badges modal
     };
   },
   methods: {
-    navigateTo(routeName) {
-      this.$router.push({ name: routeName });
+    navigateTo(routeName) { // Method to navigate to a specified route
+      this.$router.push({ name: routeName }); // Pushing route to router with specified name
     },
-    toggleEcoPoints() {
-      if (!this.userID) {
-        alert("Please log in to access eco points.");
+    toggleEcoPoints() { // Method to toggle display of eco points
+      if (!this.userID) { // If userID is not available
+        alert("Please log in to access eco points."); // Show alert
         return;
       }
-      if (this.ecoPointsText === 'Eco-points') {
-        // Fetch the impact details
+      if (this.ecoPointsText === 'Eco-points') { // If eco points are currently displayed
+        // Fetch impact details and update eco points
         this.getImpactDetails().then(() => {
           // Assuming impact score is part of the impactDetails
           if (this.impactDetails && this.impactDetails.impact_score !== undefined) {
-            this.ecoPoints = this.impactDetails.impact_score; // Set eco points to the impact score
+            this.ecoPoints = this.impactDetails.impact_score; // Update eco points
             this.ecoPointsText = `You have ${this.ecoPoints} eco points`; // Update display text
           } else {
             console.error("Impact score is not available.");
-            this.ecoPointsText = 'No impact score available';
+            this.ecoPointsText = 'No impact score available'; // Display error message
           }
         }).catch(error => {
           console.error('Failed to fetch impact details:', error);
-          this.ecoPointsText = 'Failed to load eco points';
+          this.ecoPointsText = 'Failed to load eco points'; // Display error message
         });
       } else {
         this.ecoPointsText = 'Eco-points'; // Reset to default text when toggled again
       }
     },
 
-    async getImpactDetails() {
-      if (!this.userID) {
+    async getImpactDetails() { // Method to fetch impact details
+      if (!this.userID) { // If userID is not available
         console.error('No user ID available to fetch impact details.');
-        return Promise.reject('No user ID provided');
+        return Promise.reject('No user ID provided'); // Reject promise
       }
 
       try {
         const response = await axios.get(`https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/get_impact/${this.userID}`);
         if (response.data && Array.isArray(response.data) && response.data.length > 0) {
-          this.impactDetails = response.data[0];
+          this.impactDetails = response.data[0]; // Store impact details
           console.log('Impact Details:', this.impactDetails);
-          return Promise.resolve();
+          return Promise.resolve(); // Resolve promise
         } else {
           console.error('Unexpected response format:', response.data);
-          return Promise.reject('Invalid response format');
+          return Promise.reject('Invalid response format'); // Reject promise
         }
       } catch (error) {
         console.error('Error fetching impact details:', error);
-        return Promise.reject(error);
+        return Promise.reject(error); // Reject promise
       }
     },
 
-    fetchPersonalChallenges() {
-      if (!this.userID) {
+    fetchPersonalChallenges() { // Method to fetch personal challenges
+      if (!this.userID) { // If userID is not available
         console.error('User ID is not available.');
         return;
       }
@@ -153,8 +169,8 @@ export default {
         });
       },
 
-      fetchUserBadges() {
-        if (!this.userID) {
+      fetchUserBadges() { // Method to fetch user badges
+        if (!this.userID) { // If userID is not available
           console.error('User ID is not available.');
           return;
         }
@@ -175,16 +191,16 @@ export default {
           });
       },
 
-      getBadgeImagePath(badgeName) {
+      getBadgeImagePath(badgeName) { // Method to get badge image path
         // Requires the image from the assets folder so webpack can process it
-        return require(`@/assets/Badges/${badgeName}.png`);
+        return require(`@/assets/Badges/${badgeName}.png`); // Return the path to the badge image
       },
   }
 }
 </script>
 
-
 <style scoped>
+/* Scoped styles for Gamification component */
 .Gamification {
   font-family: 'Roboto', sans-serif;
   color: #333;
@@ -196,6 +212,7 @@ export default {
   margin: 2rem auto;
 }
 
+/* Header styles */
 header {
   background: linear-gradient(to right, #4CAF50, #8BC34A);
   color: white;
@@ -207,6 +224,7 @@ header {
   position: relative;
 }
 
+/* Logout button styles */
 .logout-button {
   position: absolute;
   top: 10px;
@@ -219,6 +237,7 @@ header {
   border: none;
 }
 
+/* Main content styles */
 main {
   padding: 20px;
   display: flex;
@@ -226,6 +245,7 @@ main {
   align-items: center;
 }
 
+/* Button container styles */
 .button-container {
   display: flex;
   flex-direction: column;
@@ -234,6 +254,7 @@ main {
   width: 100%;
 }
 
+/* Button group styles */
 .button-group {
   display: flex;
   justify-content: center;
@@ -241,6 +262,7 @@ main {
   margin-bottom: 20px;
 }
 
+/* Square button styles */
 .square-button {
   width: 150px;
   height: 150px;
@@ -253,11 +275,13 @@ main {
   transition: background-color 0.3s, transform 0.1s;
 }
 
+/* Square button hover styles */
 .square-button:hover {
   background-color: #7CB342;
   transform: translateY(-2px);
 }
 
+/* Modal styles */
 .modal {
   position: fixed;
   left: 0;
@@ -270,6 +294,7 @@ main {
   align-items: center;
 }
 
+/* Modal content styles */
 .modal-content {
   background: white;
   padding: 20px;
@@ -279,12 +304,14 @@ main {
   max-width: 600px;
 }
 
+/* Close button styles */
 .close {
   float: right;
   font-size: 28px;
   cursor: pointer;
 }
 
+/* Table styles */
 table {
   width: 100%;
   border-collapse: collapse;
@@ -296,11 +323,13 @@ th, td {
   border-bottom: 1px solid #ddd;
 }
 
+/* Header row styles */
 th {
   background-color: #4CAF50;
   color: white;
 }
 
+/* Badges container styles */
 .badges-container {
   display: flex;
   flex-wrap: wrap;
@@ -308,6 +337,7 @@ th {
   padding: 0.1rem;
 }
 
+/* Badge image styles */
 .badge-image {
   max-width: 250px;
   margin: 1rem;

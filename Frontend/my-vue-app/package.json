@@ -15,6 +15,7 @@
     "serve-static": "^1.15.0",
     "vue": "^3.2.13",
     "vue-router": "^4.3.0",
+    "vue3-select": "^0.1.2",
     "vuex": "^4.1.0"
   },
   "devDependencies": {
@@ -52,5 +53,9 @@
     "last 2 versions",
     "not dead",
     "not ie 11"
-  ]
+  ],
+  "description": "## Project setup ``` npm install ```",
+  "main": "babel.config.js",
+  "author": "",
+  "license": "ISC"
 }
