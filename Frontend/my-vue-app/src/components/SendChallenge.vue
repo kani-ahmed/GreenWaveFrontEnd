@@ -2,40 +2,38 @@
   <!-- Main container for the send challenge component -->
   <div class="send-challenge">
     <!-- Title -->
-    <h2>Send Challenges</h2>
+    <h2>Create Community Challenges</h2>
     <!-- Content container -->
     <div>
 
       <!-- Challenge Dropdown -->
-      <div class="input-group">
-        <!-- Label for Challenge Dropdown -->
-        <div class="left-dropdown">
-          <label for="challenge">Challenge:</label>
-          <!-- Vue Select component for selecting challenges -->
-          <vue-select v-model="selectedChallenge" :options="challenges" placeholder="Type to search" class="custom-select"></vue-select>
-        </div>
+    <div class="input-group">
+      <!-- Label for Challenge Dropdown -->
+      <div class="left-dropdown">
+        <label for="challenge">Challenge:</label>
+        <!-- Vue Select component for selecting challenges -->
+        <vue-select v-model="selectedChallenge" :options="challenges" placeholder="Type to search" class="custom-select"></vue-select>
+      </div>
       </div>
 
       <!-- User Dropdown -->
       <div class="input-group">
         <!-- Label for User Dropdown -->
         <div class="left-dropdown">
+          <!--
           <label for="user">User:</label>
-          <!-- Vue Select component for selecting users -->
-          <vue-select v-model="selectedUser" :options="users" placeholder="Type to search" class="custom-select"></vue-select>
+           Vue Select component for selecting users
+          <vue-select v-model="selectedUser" :options="users" placeholder="Type to search" class="custom-select"></vue-select> -->
         </div>
       </div>
-
       <!-- Message Textbox -->
-      <div class="input-group">
-        <!-- Label for Message Textbox -->
-        <label for="message">Message:</label>
-        <!-- Textarea for typing the message -->
-        <textarea id="message" class="input-field" rows="4" cols="50" placeholder="Write Your Message Here" v-model="message"></textarea>
-      </div>
+    <div class="input-group">
+      <label for="message">Message:</label>
+      <textarea id="message" class="input-field" rows="4" cols="50" placeholder="Write Your Message Here" v-model="message"></textarea>
+    </div>
 
       <!-- Submit Button -->
-      <button class="submit-button">Submit</button>
+      <button class="submit-button">Send Community Challenge!</button>
 
       <!-- Your content goes here -->
     </div>
@@ -55,9 +53,35 @@ export default {
       selectedChallenge: '',
       selectedUser: '',
       message: '',
-      challenges: ['Daily Quick Win: Use a paper straw [5 points]', 'Weekly Warrior: Do not use any single-use water bottles for an entire week[50 points]', 'Monthly Master: Avoid single-use plastics for an entire month[200 points]', 'Yearly Hero: Reduce your yearly personal waste by 50% [1000 points]'], // Sample data for challenges
-      users: ['Esteban Linarez', 'Kyle Kaufman', 'Preston DeLeo', 'Kani Ahmed', 'Pranav Dhinakar'] // Sample data for users
+      challenges: [
+    { value: 'Daily Quick Win: Use a paper straw [5 points]', label: 'Daily Quick Win: Use a paper straw [5 points]' },
+    { value: 'Weekly Warrior: Do not use any single-use water bottles for an entire week[50 points]', label: 'Weekly Warrior: Do not use any single-use water bottles for an entire week[50 points]' },
+    { value: 'Monthly Master: Avoid single-use plastics for an entire month[200 points]', label: 'Monthly Master: Avoid single-use plastics for an entire month[200 points]' },
+    { value: 'Yearly Hero: Reduce your yearly personal waste by 50% [1000 points]', label: 'Yearly Hero: Reduce your yearly personal waste by 50% [1000 points]' }
+  ],      
+    //users: ['Esteban Linarez', 'Kyle Kaufman', 'Preston DeLeo', 'Kani Ahmed', 'Pranav Dhinakar'] // Sample data for users
     };
+  },
+  methods: {
+    sendChallenge() {
+      // Check if both a challenge and a user are selected
+      if (this.selectedChallenge) {
+        console.log(`Sending challenge "${this.selectedChallenge}" to user "${this.selectedUser}" with message: "${this.message}"`);
+        if (!this.userID) {
+                console.error('Id is empty');
+                return;
+            }
+        //const url = `https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/create_post`;
+
+        // Reset selected challenge, user, and message after sending
+        this.selectedChallenge = '';
+        this.selectedUser = '';
+        this.message = '';
+      } else {
+        // Display an error message if either challenge or user is not selected
+        console.error('Please select both a challenge and a user before sending.');
+      }
+    }
   }
 }
 </script>
@@ -99,6 +123,32 @@ export default {
 
 /* Submit button style */
 .submit-button {
-  float: right; /* Align the button to the right */
+  /* Align the button to the right */
+  float: center;
+  
+  /* Set width and height to make it square */
+  width: 100px;
+  height: 100px;
+  
+  /* Optional: Add padding for better visual appearance */
+  padding: 10px;
+  
+  /* Optional: Set background color */
+  background-color: #4CAF50;
+  
+  /* Optional: Set text color */
+  color: white;
+  
+  /* Optional: Set border and border-radius */
+  border: none;
+  border-radius: 5px;
+  
+  /* Optional: Add hover effect */
+  transition: background-color 0.3s ease;
+}
+
+/* Add hover effect */
+.submit-button:hover {
+  background-color: #45a049; /* Change background color on hover */
 }
 </style>
