@@ -1,3 +1,12 @@
+## Branch
+Please check version 1 and 2 for branches where our application was developed.
+Here is the link for our backend repo: https://github.com/kenny-ahmedd/GreenWave-sustainability-tracker-app
+Check branch: PR-Approval-with-Emoji
+## Video Link to web application
+The video link to how the application works: https://github.com/pxd222PranavDhinakar/Green-Wave/assets/118007706/43f31535-719c-4fe5-a7e7-846904f29468
+Hosting site link: https://in-progress-frontend-6574aba5b82b.herokuapp.com/gamification 
+username: test 
+password: test
 ## Git Workflow Useful Rules (Not Strict)
 
 To maintain the integrity and quality of our codebase, we follow a structured process for contributing changes. Please adhere to the steps outlined below to ensure your contributions can be efficiently reviewed and integrated.
