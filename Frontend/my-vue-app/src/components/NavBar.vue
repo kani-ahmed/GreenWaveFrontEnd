@@ -5,21 +5,23 @@
     <ul>
       <!-- Home link -->
       <li><router-link to="/" exact-active-class="active">Home</router-link></li>
-      <!-- Impact Calculator link (visible if user is logged in) -->
+      <!-- Impact Calculator link-->
       <li v-if="isLoggedIn"><router-link to="/calculator" active-class="active">Impact Calculator</router-link></li>
-      <!-- Challenge Center link (visible if user is logged in) -->
+      <!-- Challenge Center link -->
       <li v-if="isLoggedIn"><router-link to="/gamification" active-class="active">Challenge Center</router-link></li>
-      <!-- Social Media link (visible if user is logged in) -->
+      <!-- Social Media link-->
       <li v-if="isLoggedIn"><router-link to="/socialmedia" active-class="active">Social Media</router-link></li>
-      <!-- Send Challenge link (visible if user is not logged in) -->
+      <!-- Send Challenge link -->
       <li v-if="isLoggedIn"><router-link to="/sendchallenge" active-class="active">Create Community Challenges</router-link></li>
-      <!-- Login link (visible if user is not logged in) -->
+      <!-- Challenge Inbox link -->
+      <li v-if="isLoggedIn"><router-link to="/challengeinbox" active-class="active">View Challenge Inbox</router-link></li>
+      <!-- Login link -->
       <li v-if="!isLoggedIn"><router-link to="/login" active-class="active">Login</router-link></li>
-      <!-- Register link (visible if user is not logged in) -->
+      <!-- Register link -->
       <li v-if="!isLoggedIn"><router-link to="/register" active-class="active">Register</router-link></li>
-      <!-- Profile link (visible if user is logged in) -->
+      <!-- Profile link -->
       <li v-if="isLoggedIn"><router-link to="/profile" active-class="active">Profile</router-link></li>
-      <!-- Logout button (visible if user is logged in) -->
+      <!-- Logout button -->
       <li v-if="isLoggedIn"><button @click="logout">Logout</button></li>
     </ul>
   </nav>
