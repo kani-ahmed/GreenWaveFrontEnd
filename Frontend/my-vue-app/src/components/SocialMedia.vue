@@ -11,7 +11,7 @@
                 </div>
                 <div class="button-group-bottom">
                     <button class="square-button" @click="Friends">Friend List</button>
-                    <button class="square-button" @click="viewPosts">view posts</button>
+                    <button class="square-button" @click="getAllPosts()">view posts</button>
                 </div>
             </div>
         </main>
@@ -23,6 +23,29 @@
             <h2>Post</h2>
             <textarea v-model="postContent" placeholder="Write your post here"></textarea>
             <button @click="createPost()">Submit</button>
+        </div>
+    </div>
+
+    <div v-if="showViewPostsModal" class="modal">
+        <div class="modal-content">
+            <span class="close" @click="showViewAllPostsModal = false">&times;</span>
+            <h2>View All Posts</h2>
+            <!-- Add logic to display all posts -->
+        <!-- make a table to display the posts -->
+        <table>
+          <tr>
+            <th>Post</th>
+            <th>Content</th>
+          </tr>
+          <!-- Loop through posts and display details -->
+          <tr v-for="post in posts" :key="post.post_id">
+            <td>{{ post.post_id }}</td>
+            <td>{{ post.username}}</td>
+            <!-- add time -->
+            <td>{{ post.created_at }}</td>
+            <td>{{ post.content }}</td>
+          </tr>
+        </table>
         </div>
     </div>
 
@@ -46,10 +69,12 @@ export default {
     name: 'SocialMedia',
     data() {
         return {
-
+            
             showPostModal: false,
             postContent: '',
-
+            showViewPostsModal: false,
+            // make a array to store all posts
+            posts: [],
         };
     },
 
@@ -70,7 +95,7 @@ export default {
                 user_id: this.userID,
                 content: this.postContent
             }).then(response => {
-                if (response.status === 201) {
+                if (response.status === 200) {
                     console.log(response.data);
                     this.content = response.data;
                     console.log(this.content);
@@ -87,6 +112,40 @@ export default {
         openPostModal() {
             this.showPostModal = true;
         },
+
+
+        // Add method to view all posts
+        getAllPosts(){
+            if (!this.userID) {
+                console.error('Id is empty');
+                return;
+            }
+
+            console.log("Getting all posts")
+
+            const url = `https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/view_my_posts/${this.userID}`;
+
+            axios.get(url, {
+                user_id: this.userID,
+            }).then(response => {
+                if (response.status === 200) {
+                    console.log(response.data);
+                    this.posts = response.data;
+                    this.showViewPostsModal = true;
+                    console.log(this.posts);
+                }
+                else {
+                    console.error('Posts not found.');
+                }
+            })
+                .catch(error => {
+                    console.error("Error:", error.response);
+                });
+        },
+
+
+
+       
 
         sendMessage() {
             // Add logic to show the send message modal
@@ -187,6 +246,12 @@ main {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     width: 80%;
     max-width: 600px;
+}
+
+.close {
+  float: right;
+  font-size: 28px;
+  cursor: pointer;
 }
 
 
