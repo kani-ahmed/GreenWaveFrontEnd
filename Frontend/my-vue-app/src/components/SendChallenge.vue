@@ -73,7 +73,7 @@ export default {
   },
   methods: {
     sendChallenge() {
-  // Check if both a challenge and a user are selected
+  // Check if a challenge is selected
   if (this.selectedChallenge && this.selectedChallenge.value) {
       // Access the value property of selectedChallenge
       const selectedChallengeValue = this.selectedChallenge.value;
@@ -104,7 +104,7 @@ export default {
     this.selectedUser = '';
     this.message = '';
   } else {
-    // Display an error message if either challenge or user is not selected
+    // Display an error message if either challenge is not selected
     console.error('Please select both a challenge and a user before sending.');
   }
   }
