@@ -93,7 +93,7 @@ export default {
         this.content = response.data;
         console.log(this.content);
       } else {
-        console.error('Post not found.');
+        console.error('Challenge not sent.');
       }
     })
     .catch(error => {
