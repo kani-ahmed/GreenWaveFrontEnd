@@ -42,6 +42,16 @@
         </div>
     </div>
 
+    <!-- Send Message -->
+    <div v-if="showSendMessageModal" class="modal">
+        <div class="modal-content">
+            <span class="close" @click="showSendMessageModal = false">&times;</span>
+            <h2>Send Message</h2>
+            <textarea v-model="messageContent" placeholder="Write your message here"></textarea>
+            <button @click="sendMessage()">Send</button>
+        </div>
+    </div>
+
 
 </template>
 
@@ -67,6 +77,7 @@ export default {
             showPostModal: false,
             postContent: '',
             showAddFriendModal: false,
+            showSendMessageModal: false,
 
 
         };
@@ -82,6 +93,7 @@ export default {
             this.showAddFriendModal = true;
 
         },
+
 
         createPost() {
             // Add logic to show the create post modal
