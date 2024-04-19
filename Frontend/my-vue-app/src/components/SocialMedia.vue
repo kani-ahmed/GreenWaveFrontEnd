@@ -26,6 +26,23 @@
         </div>
     </div>
 
+            <!-- Add Friends -->
+    <div v-if="showAddFriendModal" class="modal">
+        <div class="modal-content">
+            <span class="close" @click="showAddFriendModal = false">&times;</span>
+            <h2>Add Friends</h2>
+            <input type="text" v-model="searchQuery" placeholder="Search users..." @keyup.enter="searchUsers">
+            <button @click="searchUsers">Search</button>
+            <ul class="friend-search-results">
+                <li v-for="user in searchResults" :key="user.id">
+                    {{ user.username }}
+                    <button @click="sendFriendRequest(user.id)">Add</button>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+
 </template>
 
 <script>
@@ -49,6 +66,7 @@ export default {
 
             showPostModal: false,
             postContent: '',
+            
 
         };
     },
@@ -60,7 +78,7 @@ export default {
                 console.error('Id is empty');
                 return;
             }
-            
+
         },
 
         createPost() {
