@@ -31,6 +31,56 @@
         </div>
     </div>
 
+            <!-- Add Friends -->
+    <div v-if="showAddFriendModal" class="modal">
+        <div class="modal-content">
+            <span class="close" @click="showAddFriendModal = false">&times;</span>
+            <h2>Add Friends</h2>
+            <input type="text" v-model="searchQuery" placeholder="Search users..." @keyup.enter="searchUsers">
+            <button @click="searchUsers">Search</button>
+            <ul class="friend-search-results">
+                <li v-for="user in searchResults" :key="user.id">
+                    {{ user.username }}
+                    <button @click="sendFriendRequest(user.id)">Add</button>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Send Message -->
+    <div v-if="showSendMessageModal" class="modal">
+        <div class="modal-content">
+            <span class="close" @click="showSendMessageModal = false">&times;</span>
+            <h2>Send Message</h2>
+            <textarea v-model="messageContent" placeholder="Write your message here"></textarea>
+            <button @click="sendMessage()">Send</button>
+        </div>
+    </div>
+
+
+    <div v-if="showViewPostsModal" class="modal">
+        <div class="modal-content">
+            <span class="close" @click="showViewPostsModal = false">&times;</span>
+            <h2>View All Posts</h2>
+            <div class="posts-container">
+                <table>
+                    <tr>
+                        <th>ID</th>
+                        <th>User</th>
+                        <th>Time</th>
+                        <th>Content</th>
+                    </tr>
+                    <tr v-for="post in posts" :key="post.post_id">
+                        <td>{{ post.post_id }}</td>
+                        <td>{{ post.username }}</td>
+                        <td>{{ post.created_at }}</td>
+                        <td>{{ post.content }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
     <div v-if="showViewPostsModal" class="modal">
         <div class="modal-content">
             <span class="close" @click="showViewPostsModal = false">&times;</span>
@@ -79,6 +129,9 @@ export default {
 
             showPostModal: false,
             postContent: '',
+            showAddFriendModal: false,
+            showSendMessageModal: false,
+
             showViewPostsModal: false,
             posts: [],  // Array to store all posts
         };
@@ -88,6 +141,22 @@ export default {
         // Method to add friends
         addfriends() {
             // Add logic to show the add friends modal
+            if (!this.userID) {
+                console.error('Id is empty');
+                return;
+            }
+            this.showAddFriendModal = true;
+
+        },
+
+        showMessage() {
+            // Add logic to show the add friends modal
+            if (!this.userID) {
+                console.error('Id is empty');
+                return;
+            }
+            this.showSendMessageModal = true;
+
         },
 
         // Method to create a post
@@ -166,6 +235,7 @@ export default {
 
         // Method to view friend list
         Friends() {
+            this.showAddFriendModal = true;
             // Add logic to show the friend list modal
         },
         viewPosts() {
