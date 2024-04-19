@@ -94,6 +94,15 @@ export default {
 
         },
 
+        showMessage() {
+            // Add logic to show the add friends modal
+            if (!this.userID) {
+                console.error('Id is empty');
+                return;
+            }
+            this.showSendMessageModal = true;
+
+        },
 
         createPost() {
             // Add logic to show the create post modal
