@@ -56,6 +56,11 @@ export default {
     methods: {
         addfriends() {
             // Add logic to show the add friends modal
+            if (!this.userID) {
+                console.error('Id is empty');
+                return;
+            }
+            
         },
 
         createPost() {
