@@ -11,7 +11,7 @@
                 </div>
                 <div class="button-group-bottom">
                     <button class="square-button" @click="Friends">Friend List</button>
-                    <button class="square-button" @click="viewPosts">view posts</button>
+                    <button class="square-button" @click="viewPosts">View Posts</button>
                 </div>
             </div>
         </main>
