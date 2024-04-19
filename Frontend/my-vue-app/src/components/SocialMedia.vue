@@ -66,7 +66,8 @@ export default {
 
             showPostModal: false,
             postContent: '',
-            
+            showAddFriendModal: false,
+
 
         };
     },
@@ -78,6 +79,7 @@ export default {
                 console.error('Id is empty');
                 return;
             }
+            this.showAddFriendModal = true;
 
         },
 
@@ -120,6 +122,7 @@ export default {
         },
 
         Friends() {
+            this.showAddFriendModal = true;
             // Add logic to show the friend list modal
         },
         viewPosts() {
