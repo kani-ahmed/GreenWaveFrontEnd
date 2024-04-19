@@ -63,51 +63,46 @@ export default {
       selectedUser: '',
       message: '',
       challenges: [
-    { value: 1, label: 'Daily Quick Win: Use a paper straw [5 points]' },
-    { value: 2, label: 'Weekly Warrior: Do not use any single-use water bottles for an entire week[50 points]' },
-    { value: 3, label: 'Monthly Master: Avoid single-use plastics for an entire month[200 points]' },
-    { value: 4, label: 'Yearly Hero: Reduce your yearly personal waste by 50% [1000 points]' }
+    { value: 1, label: 'Daily Quick Win: Refuse a plastic straw [5 points]' },
+    { value: 2, label: 'Weekly Warrior: Use a refillable water bottle for a week[50 points]' },
+    { value: 3, label: 'Monthly Master: Avoid all single-use plastics for a month[200 points]' },
+    { value: 4, label: 'Yearly Hero: Reduce personal waste by 50% [1000 points]' }
   ],  
     //users: ['Esteban Linarez', 'Kyle Kaufman', 'Preston DeLeo', 'Kani Ahmed', 'Pranav Dhinakar'] // Sample data for users
     };
   },
   methods: {
-    sendChallenge() {
-  // Check if a challenge is selected
-  if (this.selectedChallenge && this.selectedChallenge.value) {
-      // Access the value property of selectedChallenge
-      const selectedChallengeValue = this.selectedChallenge.value;
-      console.log(`Sending challenge "${selectedChallengeValue}" with message: "${this.message}"`);
-    if (!this.userID) {
-      console.error('Id is empty');
-      return;
-    }
-    const url = `https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/create_community_challenge`;
-    axios.post(url, {
-      challenge_id: selectedChallengeValue, // Use the ID of the selected challenge
-      created_by: this.userID
-    })
-    .then(response => {
-      if (response.status === 201) {
-        console.log(response.data);
-        this.content = response.data;
-        console.log(this.content);
+    async sendChallenge() {
+      // Check if a challenge is selected
+      if (this.selectedChallenge && this.selectedChallenge.value) {
+        // Access the value property of selectedChallenge
+        const selectedChallengeValue = this.selectedChallenge.value;
+        console.log(`Sending challenge "${selectedChallengeValue}" with message: "${this.message}"`);
+        if (!this.userID) {
+          console.error('Id is empty');
+          return;
+        }
+        try {
+          const url = `https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/create_community_challenge`;
+          const response = await axios.post(url, {
+            challenge_id: selectedChallengeValue, // Use the ID of the selected challenge
+            created_by: this.userID
+          });
+
+          if (response.status === 200) {
+            console.log(response.data);
+            this.content = response.data; // Make sure to define this.content in your data() function if you want to use it here
+            console.log(this.content);
+          } else {
+            console.error('Challenge not sent.');
+          }
+        } catch (error) {
+          console.error('Error sending challenge:', error);
+        }
       } else {
-        console.error('Challenge not sent.');
+        console.error('No challenge selected.');
       }
-    })
-    .catch(error => {
-      console.error("Error:", error.response);
-    });
-    // Reset selected challenge, user, and message after sending
-    this.selectedChallenge = '';
-    this.selectedUser = '';
-    this.message = '';
-  } else {
-    // Display an error message if either challenge is not selected
-    console.error('Please select both a challenge and a user before sending.');
-  }
-  }
+    }
   }
 }
 </script>
