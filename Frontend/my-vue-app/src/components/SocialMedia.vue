@@ -28,24 +28,24 @@
 
     <div v-if="showViewPostsModal" class="modal">
         <div class="modal-content">
-            <span class="close" @click="showViewAllPostsModal = false">&times;</span>
+            <span class="close" @click="showViewPostsModal = false">&times;</span>
             <h2>View All Posts</h2>
-            <!-- Add logic to display all posts -->
-        <!-- make a table to display the posts -->
-        <table>
-          <tr>
-            <th>Post</th>
-            <th>Content</th>
-          </tr>
-          <!-- Loop through posts and display details -->
-          <tr v-for="post in posts" :key="post.post_id">
-            <td>{{ post.post_id }}</td>
-            <td>{{ post.username}}</td>
-            <!-- add time -->
-            <td>{{ post.created_at }}</td>
-            <td>{{ post.content }}</td>
-          </tr>
-        </table>
+            <div class="posts-container">
+                <table>
+                    <tr>
+                        <th>ID</th>
+                        <th>User</th>
+                        <th>Time</th>
+                        <th>Content</th>
+                    </tr>
+                    <tr v-for="post in posts" :key="post.post_id">
+                        <td>{{ post.post_id }}</td>
+                        <td>{{ post.username }}</td>
+                        <td>{{ post.created_at }}</td>
+                        <td>{{ post.content }}</td>
+                    </tr>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -246,6 +246,27 @@ main {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     width: 80%;
     max-width: 600px;
+}
+
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.posts-container {
+    overflow-y: auto;
+    /* Only vertical scrolling */
+    max-height: 300px;
+    /* Adjust based on your needs */
+    margin-top: 20px;
+    /* Space between header and table */
+}
+
+th,td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
 }
 
 .close {
