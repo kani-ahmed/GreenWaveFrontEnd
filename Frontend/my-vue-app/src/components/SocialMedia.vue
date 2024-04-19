@@ -13,7 +13,7 @@
                 <div class="button-group-bottom">
                     <!-- Buttons for viewing friend list and all posts -->
                     <button class="square-button" @click="Friends">Friend List</button>
-                    <button class="square-button" @click="getAllPosts()">view posts</button>
+                    <button class="square-button" @click="getAllPosts()">View Posts</button>
                 </div>
             </div>
         </main>
