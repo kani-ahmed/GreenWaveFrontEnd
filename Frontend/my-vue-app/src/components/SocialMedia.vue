@@ -1,15 +1,17 @@
 <template>
+    <!-- Social media component template -->
     <div class="social-media-component">
-
-
+        <!-- Main section for buttons -->
         <main>
             <div class="button-class">
                 <div class="button-group-top">
+                    <!-- Buttons for adding friends, creating a post, and sending a message -->
                     <button class="square-button" @click="addfriends">Add Friends</button>
                     <button class="square-button" @click="openPostModal()">Create Post</button>
                     <button class="square-button" @click="openSendMessage()">Send Message</button>
                 </div>
                 <div class="button-group-bottom">
+                    <!-- Buttons for viewing friend list and all posts -->
                     <button class="square-button" @click="Friends">Friend List</button>
                     <button class="square-button" @click="getAllPosts()">view posts</button>
                 </div>
@@ -17,21 +19,24 @@
         </main>
     </div>
 
+    <!-- Modal for creating a post -->
     <div v-if="showPostModal" class="modal">
         <div class="modal-content">
             <span class="close" @click="showPostModal = false">&times;</span>
             <h2>Post</h2>
+            <!-- Text area for writing the post content -->
             <textarea v-model="postContent" placeholder="Write your post here"></textarea>
+            <!-- Button to submit the post -->
             <button @click="createPost()">Submit</button>
         </div>
     </div>
 
+    <!-- Modal for viewing all posts -->
     <div v-if="showViewPostsModal" class="modal">
         <div class="modal-content">
             <span class="close" @click="showViewAllPostsModal = false">&times;</span>
             <h2>View All Posts</h2>
-            <!-- Add logic to display all posts -->
-        <!-- make a table to display the posts -->
+       <!-- Table to display all posts -->
         <table>
           <tr>
             <th>Post</th>
@@ -58,9 +63,10 @@ import { mapGetters } from 'vuex';
 
 
 export default {
+    // Importing computed properties from Vuex store
     computed: {
         ...mapGetters(['currentUser']),
-        // Use a computed property to react to changes in currentUser
+        // Compute the user ID from currentUser
         userID() {
             return this.currentUser ? this.currentUser.userId : null;
         }
@@ -68,21 +74,23 @@ export default {
 
     name: 'SocialMedia',
     data() {
+        // Data properties for managing state
         return {
             
             showPostModal: false,
             postContent: '',
             showViewPostsModal: false,
-            // make a array to store all posts
-            posts: [],
+            posts: [],  // Array to store all posts
         };
     },
 
     methods: {
+        // Method to add friends
         addfriends() {
             // Add logic to show the add friends modal
         },
 
+        // Method to create a post
         createPost() {
             // Add logic to show the create post modal
             if (!this.userID) {
@@ -109,12 +117,13 @@ export default {
                 });
         },
 
+        // Method to open the create post modal
         openPostModal() {
             this.showPostModal = true;
         },
 
 
-        // Add method to view all posts
+         // Method to get all posts
         getAllPosts(){
             if (!this.userID) {
                 console.error('Id is empty');
@@ -146,7 +155,7 @@ export default {
 
 
        
-
+        // Method to open the send message modal
         sendMessage() {
             // Add logic to show the send message modal
         },
@@ -155,6 +164,7 @@ export default {
             this.showSendMessageModal = true;
         },
 
+        // Method to view friend list
         Friends() {
             // Add logic to show the friend list modal
         },
@@ -170,6 +180,8 @@ export default {
 </script>
 
 <style scoped>
+/* Scoped styles for the social media component */
+
 .social-media-component {
     /* Styles that apply to the whole component */
 }
@@ -210,6 +222,7 @@ main {
     margin-bottom: 20px;
 }
 
+/* Styles for buttons */
 .square-button {
     width: 150px;
     height: 150px;
@@ -227,6 +240,7 @@ main {
     transform: translateY(-2px);
 }
 
+/* Styles for modal */
 .modal {
     position: fixed;
     left: 0;
@@ -239,6 +253,7 @@ main {
     align-items: center;
 }
 
+/* Styles for modal content */
 .modal-content {
     background: white;
     padding: 20px;
@@ -248,6 +263,7 @@ main {
     max-width: 600px;
 }
 
+/* Styles for close button */
 .close {
   float: right;
   font-size: 28px;
