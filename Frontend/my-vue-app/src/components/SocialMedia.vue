@@ -285,7 +285,7 @@ td {
 }
 
 th {
-    background-color: #f4f4f4;
+    background-color: #4CAF50;
 }
 
 .close {
