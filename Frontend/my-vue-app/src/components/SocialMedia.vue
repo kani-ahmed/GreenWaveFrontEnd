@@ -37,21 +37,21 @@
             <span class="close" @click="showViewPostsModal = false">&times;</span>
             <h2>View All Posts</h2>
             <!-- Add logic to display all posts -->
-        <!-- make a table to display the posts -->
-        <table>
-          <tr>
-            <th>Post</th>
-            <th>Content</th>
-          </tr>
-          <!-- Loop through posts and display details -->
-          <tr v-for="post in posts" :key="post.post_id">
-            <td>{{ post.post_id }}</td>
-            <td>{{ post.username}}</td>
-            <!-- add time -->
-            <td>{{ post.created_at }}</td>
-            <td>{{ post.content }}</td>
-          </tr>
-        </table>
+            <!-- make a table to display the posts -->
+            <table>
+                <tr>
+                    <th>Post</th>
+                    <th>Content</th>
+                </tr>
+                <!-- Loop through posts and display details -->
+                <tr v-for="post in posts" :key="post.post_id">
+                    <td>{{ post.post_id }}</td>
+                    <td>{{ post.username }}</td>
+                    <!-- add time -->
+                    <td>{{ post.created_at }}</td>
+                    <td>{{ post.content }}</td>
+                </tr>
+            </table>
         </div>
     </div>
 
@@ -77,7 +77,7 @@ export default {
     data() {
         // Data properties for managing state
         return {
-            
+
             showPostModal: false,
             postContent: '',
             showViewPostsModal: false,
@@ -124,8 +124,8 @@ export default {
         },
 
 
-         // Method to get all posts
-        getAllPosts(){
+        // Method to get all posts
+        getAllPosts() {
             if (!this.userID) {
                 console.error('Id is empty');
                 return;
@@ -155,7 +155,7 @@ export default {
 
 
 
-       
+
         // Method to open the send message modal
         sendMessage() {
             // Add logic to show the send message modal
@@ -279,7 +279,8 @@ table {
     /* Space between header and table */
 }
 
-th,td {
+th,
+td {
     border: 1px solid #ddd;
     padding: 8px;
     text-align: left;
@@ -287,9 +288,9 @@ th,td {
 
 /* Styles for close button */
 .close {
-  float: right;
-  font-size: 28px;
-  cursor: pointer;
+    float: right;
+    font-size: 28px;
+    cursor: pointer;
 }
 
 
