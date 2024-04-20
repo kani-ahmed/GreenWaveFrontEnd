@@ -49,10 +49,10 @@
       <table class="add-friends-table">
         <thead>
         <tr>
-          <th>People</th>
-          <th>Action</th>
-          <th>Friendship Status</th>
-          <th>Requested Date</th>
+          <th class="green-header">People</th>
+          <th class="green-header">Action</th>
+          <th class="green-header">Friendship Status</th>
+          <th class="green-header">Requested Date</th>
         </tr>
         </thead>
         <tbody>
@@ -628,6 +628,10 @@ th {
   margin-left: 10px;
 }
 
+.green-header {
+  background-color: #4CAF50 !important;
+  padding: 8px;
+}
 
 
 /* Add other CSS styles to match the design of the second photo */
