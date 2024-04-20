@@ -77,13 +77,16 @@
 
   <!-- Send Message -->
   <div v-if="showSendMessageModal" class="modal">
-    <div class="modal-content">
-      <span class="close" @click="showSendMessageModal = false">&times;</span>
-      <h2>Send Message</h2>
-      <textarea v-model="messageContent" placeholder="Write your message here"></textarea>
-      <button @click="sendMessage()">Send</button>
-    </div>
+  <div class="modal-content">
+    <span class="close" @click="showSendMessageModal = false">&times;</span>
+    <h2>Send Message</h2>
+    <!-- Text area for writing the message content -->
+    <textarea v-model="messageContent" placeholder="Write your message here" class="post-textarea"></textarea>
+    <!-- Button to send the message -->
+    <button @click="sendMessage()" class="submit-button">Send</button>
   </div>
+</div>
+
 
 
   <div v-if="showViewPostsModal" class="modal">
