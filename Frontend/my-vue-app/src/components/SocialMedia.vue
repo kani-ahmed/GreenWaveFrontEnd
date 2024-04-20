@@ -1,247 +1,385 @@
 <template>
-    <!-- Social media component template -->
-    <div class="social-media-component">
-        <!-- Main section for buttons -->
-        <main>
-            <div class="button-class">
-                <div class="button-group-top">
-                    <!-- Buttons for adding friends, creating a post, and sending a message -->
-                    <button class="square-button" @click="addfriends">Add Friends</button>
-                    <button class="square-button" @click="openPostModal()">Create Post</button>
-                    <button class="square-button" @click="openSendMessage()">Send Message</button>
-                </div>
-                <div class="button-group-bottom">
-                    <!-- Buttons for viewing friend list and all posts -->
-                    <button class="square-button" @click="Friends">Friend List</button>
-                    <button class="square-button" @click="getAllPosts()">View Posts</button>
-                </div>
-            </div>
-        </main>
-    </div>
-
-    <!-- Modal for creating a post -->
-    <div v-if="showPostModal" class="modal">
-        <div class="modal-content">
-            <span class="close" @click="showPostModal = false">&times;</span>
-            <h2>Post</h2>
-            <!-- Text area for writing the post content -->
-            <textarea v-model="postContent" placeholder="Write your post here"></textarea>
-            <!-- Button to submit the post -->
-            <button @click="createPost()">Submit</button>
+  <!-- Social media component template -->
+  <div class="social-media-component">
+    <!-- Main section for buttons -->
+    <main>
+      <div class="button-class">
+        <div class="button-group-top">
+          <!-- Buttons for adding friends, creating a post, and sending a message -->
+          <button class="square-button" @click="addfriends">Add Friends</button>
+          <button class="square-button" @click="openPostModal()">Create Post</button>
+          <button class="square-button" @click="openSendMessage()">Send Message</button>
         </div>
-    </div>
-
-            <!-- Add Friends -->
-    <div v-if="showAddFriendModal" class="modal">
-        <div class="modal-content">
-            <span class="close" @click="showAddFriendModal = false">&times;</span>
-            <h2>Add Friends</h2>
-            <input type="text" v-model="searchQuery" placeholder="Search users..." @keyup.enter="searchUsers">
-            <button @click="searchUsers">Search</button>
-            <ul class="friend-search-results">
-                <li v-for="user in searchResults" :key="user.id">
-                    {{ user.username }}
-                    <button @click="sendFriendRequest(user.id)">Add</button>
-                </li>
-            </ul>
+        <div class="button-group-bottom">
+          <!-- Buttons for viewing friend list and all posts -->
+          <button class="square-button" @click="Friends">Friend List</button>
+          <button class="square-button" @click="getAllPosts()">View Posts</button>
         </div>
-    </div>
+      </div>
+    </main>
+  </div>
 
-    <!-- Send Message -->
-    <div v-if="showSendMessageModal" class="modal">
-        <div class="modal-content">
-            <span class="close" @click="showSendMessageModal = false">&times;</span>
-            <h2>Send Message</h2>
-            <textarea v-model="messageContent" placeholder="Write your message here"></textarea>
-            <button @click="sendMessage()">Send</button>
-        </div>
+  <!-- Modal for creating a post -->
+  <div v-if="showPostModal" class="modal">
+    <div class="modal-content">
+      <span class="close" @click="showPostModal = false">&times;</span>
+      <h2>Post</h2>
+      <!-- Text area for writing the post content -->
+      <textarea v-model="postContent" placeholder="Write your post here"></textarea>
+      <!-- Button to submit the post -->
+      <button @click="createPost()">Submit</button>
     </div>
+  </div>
+
+  <!-- Add Friends -->
+  <div v-if="showAddFriendModal" class="modal">
+    <div class="modal-content">
+      <span class="close" @click="showAddFriendModal = false">&times;</span>
+      <h2>Add Friends</h2>
+      <div class="filter-container">
+        <label for="filterBy">Filter By:</label>
+        <select id="filterBy" v-model="selectedFilter">
+          <option value="People">People</option>
+          <option value="Action">Action</option>
+          <option value="Status">Status</option>
+        </select>
+        <input type="text" v-model="searchQuery" placeholder="Search people...">
+      </div>
+      <div class="add-friends-table-container">
+      <table class="add-friends-table">
+        <thead>
+        <tr>
+          <th>People</th>
+          <th>Action</th>
+          <th>Friendship Status</th>
+          <th>Requested Date</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="user in filteredUsers" :key="user.user_id">
+          <td>{{ user.username }}</td>
+          <td>
+            <button
+                class="friendship-button"
+                :class="{ 'requested': getFriendshipStatus(user.user_id) === 'requested', 'not-requested': getFriendshipStatus(user.user_id) !== 'requested' }"
+                @click="toggleFriendRequest(user.user_id)"
+            >
+              {{ getFriendshipStatus(user.user_id) === 'requested' ? 'Cancel Request' : 'Send Request' }}
+            </button>
+          </td>
+          <td>{{ getFriendshipStatus(user.user_id) }}</td>
+          <td>{{ getFriendshipRequestedDate(user.user_id) }}</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Send Message -->
+  <div v-if="showSendMessageModal" class="modal">
+    <div class="modal-content">
+      <span class="close" @click="showSendMessageModal = false">&times;</span>
+      <h2>Send Message</h2>
+      <textarea v-model="messageContent" placeholder="Write your message here"></textarea>
+      <button @click="sendMessage()">Send</button>
+    </div>
+  </div>
 
 
-    <div v-if="showViewPostsModal" class="modal">
-        <div class="modal-content">
-            <span class="close" @click="showViewPostsModal = false">&times;</span>
-            <h2>View All Posts</h2>
-            <div class="posts-container">
-                <table>
-                    <tr>
-                        <th>ID</th>
-                        <th>User</th>
-                        <th>Time</th>
-                        <th>Content</th>
-                    </tr>
-                    <tr v-for="post in posts" :key="post.post_id">
-                        <td>{{ post.post_id }}</td>
-                        <td>{{ post.username }}</td>
-                        <td>{{ post.created_at }}</td>
-                        <td>{{ post.content }}</td>
-                    </tr>
-                </table>
-            </div>
-        </div>
+  <div v-if="showViewPostsModal" class="modal">
+    <div class="modal-content">
+      <span class="close" @click="showViewPostsModal = false">&times;</span>
+      <h2>View All Posts</h2>
+      <div class="posts-container">
+        <table>
+          <tr>
+            <th>ID</th>
+            <th>User</th>
+            <th>Time</th>
+            <th>Content</th>
+          </tr>
+          <tr v-for="post in posts" :key="post.post_id">
+            <td>{{ post.post_id }}</td>
+            <td>{{ post.username }}</td>
+            <td>{{ post.created_at }}</td>
+            <td>{{ post.content }}</td>
+          </tr>
+        </table>
+      </div>
+      </div>
     </div>
+  </div>
 
-    <div v-if="showViewPostsModal" class="modal">
-        <div class="modal-content">
-            <span class="close" @click="showViewPostsModal = false">&times;</span>
-            <h2>View All Posts</h2>
-            <div class="posts-container">
-                <table>
-                    <tr>
-                        <th>ID</th>
-                        <th>User</th>
-                        <th>Time</th>
-                        <th>Content</th>
-                    </tr>
-                    <tr v-for="post in posts" :key="post.post_id">
-                        <td>{{ post.post_id }}</td>
-                        <td>{{ post.username }}</td>
-                        <td>{{ post.created_at }}</td>
-                        <td>{{ post.content }}</td>
-                    </tr>
-                </table>
-            </div>
-        </div>
+  <div v-if="showViewPostsModal" class="modal">
+    <div class="modal-content">
+      <span class="close" @click="showViewPostsModal = false">&times;</span>
+      <h2>View All Posts</h2>
+      <div class="posts-container">
+        <table>
+          <tr>
+            <th>ID</th>
+            <th>User</th>
+            <th>Time</th>
+            <th>Content</th>
+          </tr>
+          <tr v-for="post in posts" :key="post.post_id">
+            <td>{{ post.post_id }}</td>
+            <td>{{ post.username }}</td>
+            <td>{{ post.created_at }}</td>
+            <td>{{ post.content }}</td>
+          </tr>
+        </table>
+      </div>
     </div>
+  </div>
 
 </template>
 
 <script>
 
 import axios from 'axios';
-import { mapGetters } from 'vuex';
+import {mapGetters} from 'vuex';
 
 
 export default {
-    // Importing computed properties from Vuex store
-    computed: {
-        ...mapGetters(['currentUser']),
-        // Compute the user ID from currentUser
-        userID() {
-            return this.currentUser ? this.currentUser.userId : null;
+  // Importing computed properties from Vuex store
+  computed: {
+    ...mapGetters(['currentUser']),
+    // Compute the user ID from currentUser
+    userID() {
+      return this.currentUser ? this.currentUser.userId : null;
+    },
+    filteredUsers() {
+      let filtered = this.users;
+
+      if (this.searchQuery) {
+        filtered = filtered.filter(user =>
+            user.username.toLowerCase().includes(this.searchQuery.toLowerCase())
+        );
+      }
+
+      if (this.selectedFilter === 'Action') {
+        filtered = filtered.filter(user =>
+            this.getFriendshipStatus(user.user_id) !== 'None'
+        );
+      } else if (this.selectedFilter === 'Status') {
+        filtered = filtered.filter(user =>
+            this.getFriendshipStatus(user.user_id) !== 'None'
+        );
+      }
+
+      return filtered;
+    },
+  },
+
+  name: 'SocialMedia',
+  data() {
+    // Data properties for managing state
+    return {
+      showPostModal: false,
+      postContent: '',
+      showAddFriendModal: false,
+      showSendMessageModal: false,
+
+      showViewPostsModal: false,
+      posts: [],  // Array to store all posts
+      users: [],
+      friendships: [],
+      selectedFilter: 'People',
+      searchQuery: '',
+
+    };
+  },
+
+  methods: {
+    addfriends() {
+      if (!this.userID) {
+        console.error('Id is empty');
+        return;
+      }
+      this.getAllUsers();
+      this.getUserFriendships();
+      this.showAddFriendModal = true;
+    },
+
+    getAllUsers() {
+      const url = 'http://127.0.0.1:5000/get_users';
+      axios.get(url)
+          .then(response => {
+            if (response.status === 200) {
+              // Filter out the logged-in user from the list of users
+              this.users = response.data.filter(user => user.user_id !== this.userID);
+            } else {
+              console.error('Users not found.');
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error.response);
+          });
+    },
+
+    getUserFriendships() {
+      const url = `http://127.0.0.1:5000/get_friendships/${this.userID}`;
+      axios.get(url)
+          .then(response => {
+            if (response.status === 200) {
+              this.friendships = response.data;
+            } else {
+              console.error('Friendships not found.');
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error.response);
+          });
+    },
+
+    getFriendshipStatus(userId) {
+      const friendship = this.friendships.find(
+          friendship => (friendship.user_id === this.userID && friendship.friend_id === userId) ||
+              (friendship.user_id === userId && friendship.friend_id === this.userID)
+      );
+      return friendship ? friendship.status : 'None';
+    },
+
+    getFriendshipRequestedDate(userId) {
+      const friendship = this.friendships.find(
+          friendship => (friendship.user_id === this.userID && friendship.friend_id === userId) ||
+              (friendship.user_id === userId && friendship.friend_id === this.userID)
+      );
+      return friendship ? friendship.created_at : 'None';
+    },
+
+    toggleFriendRequest(userId) {
+      const friendship = this.friendships.find(
+          friendship => (friendship.user_id === this.userID && friendship.friend_id === userId) ||
+              (friendship.user_id === userId && friendship.friend_id === this.userID)
+      );
+
+      if (friendship) {
+        if (friendship.status === 'requested') {
+          this.cancelFriendRequest(userId);
         }
+      } else {
+        this.sendFriendRequest(userId);
+      }
     },
 
-    name: 'SocialMedia',
-    data() {
-        // Data properties for managing state
-        return {
-
-            showPostModal: false,
-            postContent: '',
-            showAddFriendModal: false,
-            showSendMessageModal: false,
-
-            showViewPostsModal: false,
-            posts: [],  // Array to store all posts
-        };
+    sendFriendRequest(userId) {
+      const url = `http://127.0.0.1:5000/add_friend/${this.userID}/${userId}`;
+      axios.post(url)
+          .then(response => {
+            if (response.status === 201) {
+              this.getUserFriendships();
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error.response);
+          });
     },
 
-    methods: {
-        // Method to add friends
-        addfriends() {
-            // Add logic to show the add friends modal
-            if (!this.userID) {
-                console.error('Id is empty');
-                return;
+    cancelFriendRequest(userId) {
+      const url = `http://127.0.0.1:5000/remove_friend/${this.userID}/${userId}`;
+      axios.delete(url)
+          .then(response => {
+            if (response.status === 200) {
+              this.getUserFriendships();
             }
-            this.showAddFriendModal = true;
-
-        },
-
-        showMessage() {
-            // Add logic to show the add friends modal
-            if (!this.userID) {
-                console.error('Id is empty');
-                return;
-            }
-            this.showSendMessageModal = true;
-
-        },
-
-        // Method to create a post
-        createPost() {
-            // Add logic to show the create post modal
-            if (!this.userID) {
-                console.error('Id is empty');
-                return;
-            }
-            const url = `https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/create_post`;
-
-            axios.post(url, {
-                user_id: this.userID,
-                content: this.postContent
-            }).then(response => {
-                if (response.status === 200) {
-                    console.log(response.data);
-                    this.content = response.data;
-                    console.log(this.content);
-                }
-                else {
-                    console.error('Post not found.');
-                }
-            })
-                .catch(error => {
-                    console.error("Error:", error.response);
-                });
-        },
-
-        // Method to open the create post modal
-        openPostModal() {
-            this.showPostModal = true;
-        },
-
-
-        // Method to get all posts
-        getAllPosts() {
-            if (!this.userID) {
-                console.error('Id is empty');
-                return;
-            }
-
-            console.log("Getting all posts")
-
-            const url = `https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/view_my_posts/${this.userID}`;
-
-            axios.get(url, {
-                user_id: this.userID,
-            }).then(response => {
-                if (response.status === 200) {
-                    console.log(response.data);
-                    this.posts = response.data;
-                    this.showViewPostsModal = true;
-                    console.log(this.posts);
-                }
-                else {
-                    console.error('Posts not found.');
-                }
-            })
-                .catch(error => {
-                    console.error("Error:", error.response);
-                });
-        },
-
-
-
-
-        // Method to open the send message modal
-        sendMessage() {
-            // Add logic to show the send message modal
-        },
-
-        openSendMessage() {
-            this.showSendMessageModal = true;
-        },
-
-        // Method to view friend list
-        Friends() {
-            this.showAddFriendModal = true;
-            // Add logic to show the friend list modal
-        },
-        viewPosts() {
-            // Add logic to show the view posts modal
-        },
+          })
+          .catch(error => {
+            console.error('Error:', error.response);
+          });
     },
+
+  showMessage() {
+    // Add logic to show the add friends modal
+    if (!this.userID) {
+      console.error('Id is empty');
+      return;
+    }
+    this.showSendMessageModal = true;
+
+  },
+
+  // Method to create a post
+  createPost() {
+    // Add logic to show the create post modal
+    if (!this.userID) {
+      console.error('Id is empty');
+      return;
+    }
+    const url = `https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/create_post`;
+
+    axios.post(url, {
+      user_id: this.userID,
+      content: this.postContent
+    }).then(response => {
+      if (response.status === 200) {
+        console.log(response.data);
+        this.content = response.data;
+        console.log(this.content);
+      } else {
+        console.error('Post not found.');
+      }
+    })
+        .catch(error => {
+          console.error("Error:", error.response);
+        });
+  },
+
+  // Method to open the create post modal
+  openPostModal() {
+    this.showPostModal = true;
+  },
+
+
+  // Method to get all posts
+  getAllPosts() {
+    if (!this.userID) {
+      console.error('Id is empty');
+      return;
+    }
+
+    console.log("Getting all posts")
+
+    const url = `https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/view_my_posts/${this.userID}`;
+
+    axios.get(url, {
+      user_id: this.userID,
+    }).then(response => {
+      if (response.status === 200) {
+        console.log(response.data);
+        this.posts = response.data;
+        this.showViewPostsModal = true;
+        console.log(this.posts);
+      } else {
+        console.error('Posts not found.');
+      }
+    })
+        .catch(error => {
+          console.error("Error:", error.response);
+        });
+  },
+
+
+  // Method to open the send message modal
+  sendMessage() {
+    // Add logic to show the send message modal
+  },
+
+  openSendMessage() {
+    this.showSendMessageModal = true;
+  },
+
+  // Method to view friend list
+  Friends() {
+    this.showAddFriendModal = true;
+    // Add logic to show the friend list modal
+  },
+  viewPosts() {
+    // Add logic to show the view posts modal
+  },
+}
+,
 
 
 }
@@ -253,116 +391,195 @@ export default {
 /* Scoped styles for the social media component */
 
 .social-media-component {
-    /* Styles that apply to the whole component */
+  /* Styles that apply to the whole component */
 }
 
 .image-action {
-    /* Styles that apply to the first photo */
-    /* make image smaller */
+  /* Styles that apply to the first photo */
+  /* make image smaller */
 
-    /* add padding */
-    /* add border */
-    /* add border radius */
-    /* add margin */
-    /* add box shadow */
-    /* add hover effect */
-    /* add cursor pointer */
-    /* add transition */
+  /* add padding */
+  /* add border */
+  /* add border radius */
+  /* add margin */
+  /* add box shadow */
+  /* add hover effect */
+  /* add cursor pointer */
+  /* add transition */
 }
 
 main {
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .button-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
 }
 
 .button-group {
-    display: flex;
-    justify-content: center;
-    padding: 10px;
-    margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+  padding: 10px;
+  margin-bottom: 20px;
 }
 
 /* Styles for buttons */
 .square-button {
-    width: 150px;
-    height: 150px;
-    margin: 10px;
-    border: none;
-    background-color: #8BC34A;
-    cursor: pointer;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    transition: background-color 0.3s, transform 0.1s;
+  width: 150px;
+  height: 150px;
+  margin: 10px;
+  border: none;
+  background-color: #8BC34A;
+  cursor: pointer;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.3s, transform 0.1s;
 }
 
 .square-button:hover {
-    background-color: #7CB342;
-    transform: translateY(-2px);
+  background-color: #7CB342;
+  transform: translateY(-2px);
 }
 
 /* Styles for modal */
 .modal {
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 /* Styles for modal content */
 .modal-content {
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 80%;
-    max-width: 600px;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 80%;
+  max-width: 600px;
 }
 
 .posts-container {
-    overflow-y: auto;
-    /* Only vertical scrolling */
-    max-height: 300px;
-    /* Adjust based on your needs */
-    margin-top: 20px;
-    /* Space between header and table */
+  overflow-y: auto;
+  /* Only vertical scrolling */
+  max-height: 300px;
+  /* Adjust based on your needs */
+  margin-top: 20px;
+  /* Space between header and table */
 }
 
 table {
-    width: 100%;
-    border-collapse: collapse;
+  width: 100%;
+  border-collapse: collapse;
 }
 
 th,
 td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
 }
 
 th {
-    background-color: #4CAF50;
+  background-color: #4CAF50;
 }
 
 .close {
-    float: right;
-    font-size: 28px;
-    cursor: pointer;
+  float: right;
+  font-size: 28px;
+  cursor: pointer;
 }
+
+.add-friends-table-container {
+  max-height: 400px; /* Adjust the height as needed */
+  overflow-y: auto;
+  margin-top: 20px;
+}
+
+.add-friends-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.add-friends-table th,
+.add-friends-table td {
+  border: 1px solid #ddd;
+  padding: 12px;
+  text-align: left;
+}
+
+.add-friends-table th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
+
+.add-friends-table tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.add-friends-table tbody tr:hover {
+  background-color: #e9e9e9;
+}
+
+.friendship-button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.friendship-button.requested {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.friendship-button.requested:hover {
+  background-color: #FF0000;
+}
+
+.friendship-button.not-requested {
+  background-color: #2196F3;
+  color: white;
+}
+
+.friendship-button.not-requested:hover {
+  background-color: #1976D2;
+}
+
+.filter-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.filter-container label {
+  margin-right: 10px;
+}
+
+.filter-container select,
+.filter-container input {
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.filter-container input {
+  margin-left: 10px;
+}
+
 
 
 /* Add other CSS styles to match the design of the second photo */
