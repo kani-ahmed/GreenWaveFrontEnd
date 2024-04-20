@@ -8,11 +8,11 @@
           <!-- Buttons for adding friends, creating a post, and sending a message -->
           <button class="square-button" @click="addfriends">Add Friends</button>
           <button class="square-button" @click="openPostModal()">Create Post</button>
-          <button class="square-button" @click="openSendMessage()">Send Message</button>
+          <button class="square-button" @click="showMessage()">Send Message</button>
         </div>
         <div class="button-group-bottom">
           <!-- Buttons for viewing friend list and all posts -->
-          <button class="square-button" @click="Friends">Friend List</button>
+          <button class="square-button" @click="Friends">View Friends</button>
           <button class="square-button" @click="getAllPosts()">View Posts</button>
         </div>
       </div>
@@ -109,6 +109,7 @@
       </div>
     </div>
   </div>
+
 
   <div v-if="showViewPostsModal" class="modal">
     <div class="modal-content">
@@ -290,8 +291,9 @@ export default {
           });
     },
 
+    
   showMessage() {
-    // Add logic to show the add friends modal
+  
     if (!this.userID) {
       console.error('Id is empty');
       return;
@@ -366,9 +368,7 @@ export default {
     // Add logic to show the send message modal
   },
 
-  openSendMessage() {
-    this.showSendMessageModal = true;
-  },
+  
 
   // Method to view friend list
   Friends() {
