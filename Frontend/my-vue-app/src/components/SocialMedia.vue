@@ -203,7 +203,7 @@ export default {
     },
 
     getAllUsers() {
-      const url = 'http://127.0.0.1:5000/get_users';
+      const url = 'https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/get_users';
       axios.get(url)
           .then(response => {
             if (response.status === 200) {
@@ -219,7 +219,7 @@ export default {
     },
 
     getUserFriendships() {
-      const url = `http://127.0.0.1:5000/get_friendships/${this.userID}`;
+      const url = `https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/get_friendships/${this.userID}`;
       axios.get(url)
           .then(response => {
             if (response.status === 200) {
@@ -265,7 +265,7 @@ export default {
     },
 
     sendFriendRequest(userId) {
-      const url = `http://127.0.0.1:5000/add_friend/${this.userID}/${userId}`;
+      const url = `https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/add_friend/${this.userID}/${userId}`;
       axios.post(url)
           .then(response => {
             if (response.status === 201) {
@@ -278,7 +278,7 @@ export default {
     },
 
     cancelFriendRequest(userId) {
-      const url = `http://127.0.0.1:5000/remove_friend/${this.userID}/${userId}`;
+      const url = `https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/remove_friend/${this.userID}/${userId}`;
       axios.delete(url)
           .then(response => {
             if (response.status === 200) {
