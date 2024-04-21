@@ -21,15 +21,15 @@
 
   <!-- Modal for creating a post -->
   <div v-if="showPostModal" class="modal">
-  <div class="modal-content">
-    <span class="close" @click="showPostModal = false">&times;</span>
-    <h2>Create Post</h2>
-    <!-- Text area for writing the post content -->
-    <textarea v-model="postContent" placeholder="Write your post here" class="post-textarea"></textarea>
-    <!-- Button to submit the post -->
-    <button @click="createPost()" class="submit-button">Submit</button>
+    <div class="modal-content">
+      <span class="close" @click="showPostModal = false">&times;</span>
+      <h2>Create Post</h2>
+      <!-- Text area for writing the post content -->
+      <textarea v-model="postContent" placeholder="Write your post here" class="post-textarea"></textarea>
+      <!-- Button to submit the post -->
+      <button @click="createPost()" class="submit-button">Submit</button>
+    </div>
   </div>
-</div>
 
   <!-- Add Friends -->
   <div v-if="showAddFriendModal" class="modal">
@@ -46,69 +46,68 @@
         <input type="text" v-model="searchQuery" placeholder="Search people...">
       </div>
       <div class="add-friends-table-container">
-      <table class="add-friends-table">
-        <thead>
-        <tr>
-          <th class="green-header">People</th>
-          <th class="green-header">Action</th>
-          <th class="green-header">Friendship Status</th>
-          <th class="green-header">Requested Date</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr v-for="user in filteredUsers" :key="user.user_id">
-          <td>{{ user.username }}</td>
-          <td>
-            <button
-                class="friendship-button"
-                :class="{ 'requested': getFriendshipStatus(user.user_id) === 'requested', 'not-requested': getFriendshipStatus(user.user_id) !== 'requested' }"
-                @click="toggleFriendRequest(user.user_id)"
-            >
-              {{ getFriendshipStatus(user.user_id) === 'requested' ? 'Cancel Request' : 'Send Request' }}
-            </button>
-          </td>
-          <td>{{ getFriendshipStatus(user.user_id) }}</td>
-          <td>{{ getFriendshipRequestedDate(user.user_id) }}</td>
-        </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- Send Message -->
-  <div v-if="showSendMessageModal" class="modal">
-  <div class="modal-content">
-    <span class="close" @click="showSendMessageModal = false">&times;</span>
-    <h2>Send Message</h2>
-    <!-- Text area for writing the message content -->
-    <textarea v-model="messageContent" placeholder="Write your message here" class="post-textarea"></textarea>
-    <!-- Button to send the message -->
-    <button @click="sendMessage()" class="submit-button">Send</button>
-  </div>
-</div>
-
-
-
-  <div v-if="showViewPostsModal" class="modal">
-    <div class="modal-content">
-      <span class="close" @click="showViewPostsModal = false">&times;</span>
-      <h2>View All Posts</h2>
-      <div class="posts-container">
-        <table>
+        <table class="add-friends-table">
+          <thead>
           <tr>
-            <th>ID</th>
-            <th>User</th>
-            <th>Time</th>
-            <th>Content</th>
+            <th class="green-header">People</th>
+            <th class="green-header">Action</th>
+            <th class="green-header">Friendship Status</th>
+            <th class="green-header">Requested Date</th>
           </tr>
-          <tr v-for="post in posts" :key="post.post_id">
-            <td>{{ post.post_id }}</td>
-            <td>{{ post.username }}</td>
-            <td>{{ post.created_at }}</td>
-            <td>{{ post.content }}</td>
+          </thead>
+          <tbody>
+          <tr v-for="user in filteredUsers" :key="user.user_id">
+            <td>{{ user.username }}</td>
+            <td>
+              <button
+                  class="friendship-button"
+                  :class="{ 'requested': getFriendshipStatus(user.user_id) === 'requested', 'not-requested': getFriendshipStatus(user.user_id) !== 'requested' }"
+                  @click="toggleFriendRequest(user.user_id)"
+              >
+                {{ getFriendshipStatus(user.user_id) === 'requested' ? 'Cancel Request' : 'Send Request' }}
+              </button>
+            </td>
+            <td>{{ getFriendshipStatus(user.user_id) }}</td>
+            <td>{{ getFriendshipRequestedDate(user.user_id) }}</td>
           </tr>
+          </tbody>
         </table>
       </div>
+    </div>
+
+    <!-- Send Message -->
+    <div v-if="showSendMessageModal" class="modal">
+      <div class="modal-content">
+        <span class="close" @click="showSendMessageModal = false">&times;</span>
+        <h2>Send Message</h2>
+        <!-- Text area for writing the message content -->
+        <textarea v-model="messageContent" placeholder="Write your message here" class="post-textarea"></textarea>
+        <!-- Button to send the message -->
+        <button @click="sendMessage()" class="submit-button">Send</button>
+      </div>
+    </div>
+
+
+    <div v-if="showViewPostsModal" class="modal">
+      <div class="modal-content">
+        <span class="close" @click="showViewPostsModal = false">&times;</span>
+        <h2>View All Posts</h2>
+        <div class="posts-container">
+          <table>
+            <tr>
+              <th>ID</th>
+              <th>User</th>
+              <th>Time</th>
+              <th>Content</th>
+            </tr>
+            <tr v-for="post in posts" :key="post.post_id">
+              <td>{{ post.post_id }}</td>
+              <td>{{ post.username }}</td>
+              <td>{{ post.created_at }}</td>
+              <td>{{ post.content }}</td>
+            </tr>
+          </table>
+        </div>
       </div>
     </div>
   </div>
@@ -294,95 +293,94 @@ export default {
           });
     },
 
-    
-  showMessage() {
-  
-    if (!this.userID) {
-      console.error('Id is empty');
-      return;
-    }
-    this.showSendMessageModal = true;
 
-  },
+    showMessage() {
 
-  // Method to create a post
-  createPost() {
-    // Add logic to show the create post modal
-    if (!this.userID) {
-      console.error('Id is empty');
-      return;
-    }
-    const url = `https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/create_post`;
-
-    axios.post(url, {
-      user_id: this.userID,
-      content: this.postContent
-    }).then(response => {
-      if (response.status === 200) {
-        console.log(response.data);
-        this.content = response.data;
-        console.log(this.content);
-      } else {
-        console.error('Post not found.');
+      if (!this.userID) {
+        console.error('Id is empty');
+        return;
       }
-    })
-        .catch(error => {
-          console.error("Error:", error.response);
-        });
-  },
+      this.showSendMessageModal = true;
 
-  // Method to open the create post modal
-  openPostModal() {
-    this.showPostModal = true;
-  },
+    },
 
-
-  // Method to get all posts
-  getAllPosts() {
-    if (!this.userID) {
-      console.error('Id is empty');
-      return;
-    }
-
-    console.log("Getting all posts")
-
-    const url = `https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/view_my_posts/${this.userID}`;
-
-    axios.get(url, {
-      user_id: this.userID,
-    }).then(response => {
-      if (response.status === 200) {
-        console.log(response.data);
-        this.posts = response.data;
-        this.showViewPostsModal = true;
-        console.log(this.posts);
-      } else {
-        console.error('Posts not found.');
+    // Method to create a post
+    createPost() {
+      // Add logic to show the create post modal
+      if (!this.userID) {
+        console.error('Id is empty');
+        return;
       }
-    })
-        .catch(error => {
-          console.error("Error:", error.response);
-        });
-  },
+      const url = `https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/create_post`;
+
+      axios.post(url, {
+        user_id: this.userID,
+        content: this.postContent
+      }).then(response => {
+        if (response.status === 200) {
+          console.log(response.data);
+          this.content = response.data;
+          console.log(this.content);
+        } else {
+          console.error('Post not found.');
+        }
+      })
+          .catch(error => {
+            console.error("Error:", error.response);
+          });
+    },
+
+    // Method to open the create post modal
+    openPostModal() {
+      this.showPostModal = true;
+    },
 
 
-  // Method to open the send message modal
-  sendMessage() {
-    // Add logic to show the send message modal
-  },
+    // Method to get all posts
+    getAllPosts() {
+      if (!this.userID) {
+        console.error('Id is empty');
+        return;
+      }
 
-  
+      console.log("Getting all posts")
 
-  // Method to view friend list
-  Friends() {
-    this.showAddFriendModal = true;
-    // Add logic to show the friend list modal
-  },
-  viewPosts() {
-    // Add logic to show the view posts modal
-  },
-}
-,
+      const url = `https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/view_my_posts/${this.userID}`;
+
+      axios.get(url, {
+        user_id: this.userID,
+      }).then(response => {
+        if (response.status === 200) {
+          console.log(response.data);
+          this.posts = response.data;
+          this.showViewPostsModal = true;
+          console.log(this.posts);
+        } else {
+          console.error('Posts not found.');
+        }
+      })
+          .catch(error => {
+            console.error("Error:", error.response);
+          });
+    },
+
+
+    // Method to open the send message modal
+    sendMessage() {
+      // Add logic to show the send message modal
+    },
+
+
+    // Method to view friend list
+    Friends() {
+      this.showAddFriendModal = true;
+      // Add logic to show the friend list modal
+    },
+    viewPosts() {
+      // Add logic to show the view posts modal
+    },
+  }
+  ,
 
 
 }
@@ -502,7 +500,7 @@ main {
 
 /* Placeholder text style */
 .post-textarea::placeholder {
-    font-family: Avenir, Helvetica, Arial, sans-serif;
+  font-family: Avenir, Helvetica, Arial, sans-serif;
   font-size: 16px; /* Adjust font size as needed */
   color: #999; /* Adjust placeholder text color as needed */
 }
