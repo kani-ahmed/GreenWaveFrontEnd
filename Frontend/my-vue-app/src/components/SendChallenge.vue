@@ -2,69 +2,39 @@
   <!-- Main container for the send challenge component -->
   <div class="send-challenge">
     <!-- Title -->
-    <h2 class = "header">Create Challenges</h2>
+    <h2>Create Community Challenges</h2>
     <!-- Content container -->
     <div>
-       <!-- Toggle button for personal and community challenges -->
-       <div class="toggle-button">
-  <button class="toggle-btn" :class="{ active: showPersonal }" @click="showPersonal = true">Personal Challenge</button>
-  <button class="toggle-btn" :class="{ active: !showPersonal }" @click="showPersonal = false">Community Challenge</button>
-</div>
+
       <!-- Challenge Dropdown -->
-      <div v-if="showPersonal">
     <div class="input-group">
-       <!-- Label for Personal Challenge Dropdown -->
+      <!-- Label for Challenge Dropdown -->
       <div class="left-dropdown">
-        <label for="challenge" class="dropdown-label personal-label">Personal Challenge:</label>
-        <div class="challenge-form">
-    <div class="form-group">
-      <label for="challenge-title">Challenge Title:</label>
-      <input type="text" id="challenge-title" v-model="challengeTitle" placeholder="Enter challenge title">
-    </div>
-
-    <div class="form-group">
-      <label for="challenge-description">Challenge Description:</label>
-      <textarea id="challenge-description" v-model="challengeDescription" placeholder="Enter challenge description"></textarea>
-    </div>
-
-    <div class="form-group">
-      <label for="eco-points">Eco Point Reward:</label>
-      <input type="number" id="eco-points" v-model="ecoPoints" placeholder="Enter Eco Points">
-    </div>
-
-    <div class="form-group">
-      <label for="duration">Duration:</label>
-      <select id="duration" v-model="duration">
-        <option value="day">Day</option>
-        <option value="week">Week</option>
-        <option value="month">Month</option>
-        <option value="year">Year</option>
-      </select>
-    </div>
-  </div>
-
-      </div>
-      </div>
-
-      <!-- Submit Button -->
-      <button class="submit-button" @click="sendPersonalChallenge()">Send Personal Challenge!</button>
-    </div>
-    <div v-else>
-      <div class="input-group">
-    
-      <!-- Label for Community Challenge Dropdown -->
-      <div class="left-dropdown">
-        <label for="challenge" class="dropdown-label personal-label">Community Challenge:</label>
+        <label for="challenge">Challenge:</label>
         <!-- Vue Select component for selecting challenges -->
-        <br><label for="selectedCommunityChallenge">Choose Community Challenge:</label>
-        <vue-select v-model="selectedCommunityChallenge" :options="challenges" placeholder="Type to search" class="custom-select"></vue-select>
+        <vue-select v-model="selectedChallenge" :options="challenges" placeholder="Type to search" class="custom-select"></vue-select>
       </div>
       </div>
-      
+
+      <!-- User Dropdown -->
+      <div class="input-group">
+        <!-- Label for User Dropdown -->
+        <div class="left-dropdown">
+          <!--
+          <label for="user">User:</label>
+           Vue Select component for selecting users
+          <vue-select v-model="selectedUser" :options="users" placeholder="Type to search" class="custom-select"></vue-select> -->
+        </div>
+      </div>
+      <!-- Message Textbox -->
+    <div class="input-group">
+      <label for="message">Message:</label>
+      <textarea id="message" class="input-field" rows="4" cols="50" placeholder="Write Your Message Here" v-model="message"></textarea>
+    </div>
 
       <!-- Submit Button -->
-      <button class="submit-button" @click="sendCommunityChallenge()">Send Community Challenge!</button>
-    </div>
+      <button class="submit-button" @click="sendChallenge()">Send Community Challenge!</button>
+
       <!-- Your content goes here -->
     </div>
   </div>
@@ -89,10 +59,9 @@ export default {
   },
   data() {
     return {
-      selectedCommunityChallenge: '',
-      selectedPersonalChallenge: '',
-      content: null,
-      showPersonal: true,
+      selectedChallenge: '',
+      selectedUser: '',
+      message: '',
       challenges: [
     { value: 1, label: 'Daily Quick Win: Refuse a plastic straw [5 points]' },
     { value: 2, label: 'Weekly Warrior: Use a refillable water bottle for a week[50 points]' },
@@ -103,94 +72,12 @@ export default {
     };
   },
   methods: {
-    async sendPersonalChallenge() {
-  // Check if all input fields have values
-  if (
-    this.challengeTitle &&
-    this.challengeDescription &&
-    this.ecoPoints &&
-    this.duration
-  ) {
-    // If all fields have values, log them
-    console.log('Challenge Title:', this.challengeTitle);
-    console.log('Challenge Description:', this.challengeDescription);
-    console.log('Eco Point Reward:', this.ecoPoints);
-    console.log('Duration:', this.duration);
-    // Get the current date
-// Get the current date
-const currentDate = new Date();
-
-// Format the current date
-const formattedCurrentDate = `${currentDate.getFullYear()}-${String(
-  currentDate.getMonth() + 1
-).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}`;
-
-console.log('Current Date:', formattedCurrentDate);
-// Initialize variables for future date calculation
-let futureDate = new Date(currentDate);
-
-// Calculate the future date based on the selected duration
-switch (this.duration) {
-  case 'day':
-    futureDate.setDate(currentDate.getDate() + 1);
-    break;
-  case 'week':
-    futureDate.setDate(currentDate.getDate() + 7);
-    break;
-  case 'month':
-    futureDate.setMonth(currentDate.getMonth() + 1);
-    break;
-  case 'year':
-    futureDate.setFullYear(currentDate.getFullYear() + 1);
-    break;
-  default:
-    // Handle invalid duration
-    console.error('Invalid duration selected.');
-    return;
-}
-
-// Format the future date
-const formattedFutureDate = `${futureDate.getFullYear()}-${String(
-  futureDate.getMonth() + 1
-).padStart(2, '0')}-${String(futureDate.getDate()).padStart(2, '0')}`;
-console.log('Future Date:', formattedFutureDate);
-    // Proceed with sending the personal challenge
-    // Access the value property of selectedPersonalChallenge
-    if (!this.userID) {
-      console.error('Id is empty');
-      return;
-    }
-    try {
-      const url = `https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/create_personal_challenge`;
-      const response = await axios.post(url, {
-        name:this.challengeTitle,
-        description:this.challengeDescription,
-        eco_points:this.ecoPoints,
-        start_date: formattedCurrentDate,
-        end_date: formattedFutureDate
-      });
-
-      if (response.status === 201) {
-        console.log(response.data);
-        this.content = response.data; // Make sure to define this.content in your data() function if you want to use it here
-        console.log(this.content);
-      } else {
-        console.error('Challenge not sent.');
-      }
-    } catch (error) {
-      console.error('Error sending challenge:', error);
-    }
-  } else {
-    // If any field is empty, log an error message
-    console.error('Please fill in all fields.');
-  }
-},
-    async sendCommunityChallenge() {
+    async sendChallenge() {
       // Check if a challenge is selected
-      if (this.selectedCommunityChallenge && this.selectedCommunityChallenge.value) {
-        // Access the value property of selectedCommunityChallenge
-        const selectedCommunityChallengeValue = this.selectedCommunityChallenge.value;
-        console.log(`Sending community challenge "${selectedCommunityChallengeValue}"`);
+      if (this.selectedChallenge && this.selectedChallenge.value) {
+        // Access the value property of selectedChallenge
+        const selectedChallengeValue = this.selectedChallenge.value;
+        console.log(`Sending challenge "${selectedChallengeValue}" with message: "${this.message}"`);
         if (!this.userID) {
           console.error('Id is empty');
           return;
@@ -198,7 +85,7 @@ console.log('Future Date:', formattedFutureDate);
         try {
           const url = `https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/create_community_challenge`;
           const response = await axios.post(url, {
-            challenge_id: selectedCommunityChallengeValue, // Use the ID of the selected challenge
+            challenge_id: selectedChallengeValue, // Use the ID of the selected challenge
             created_by: this.userID
           });
 
@@ -257,7 +144,7 @@ console.log('Future Date:', formattedFutureDate);
 
 /* Submit button style */
 .submit-button {
-  /* Align the button to the center */
+  /* Align the button to the right */
   float: center;
   
   /* Set width and height to make it square */
@@ -284,84 +171,5 @@ console.log('Future Date:', formattedFutureDate);
 /* Add hover effect */
 .submit-button:hover {
   background-color: #45a049; /* Change background color on hover */
-}
-
-.input-group {
-  display: flex;
-  align-items: flex-start; /* Align items at the start of the flex container */
-}
-
-.left-dropdown {
-  flex: 0 0 auto; /* Prevent this div from growing or shrinking */
-  margin-right: 20px; /* Add some space between the label and the form */
-}
-
-.challenge-form {
-  flex: 1; /* Allow this div to grow and take up remaining space */
-}
-
-.form-group {
-  margin-bottom: 20px;
-  display: flex;
-  flex-direction: column;
-}
-
-.form-group label {
-  margin-bottom: 5px;
-}
-
-.form-group input[type="text"],
-.form-group input[type="number"],
-.form-group textarea,
-.form-group select {
-  width: 100%;
-  padding: 8px;
-  font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  box-sizing: border-box;
-}
-
-.header {
-  font-size: 2.5em;
-  text-align: center; /* Align the title to the left */
-  margin-bottom: 20px; /* Add margin between header and content */
-}
-
-/* Styling for dropdown labels */
-.dropdown-label {
-  font-weight: bold;
-  font-size: 1.2em;
-}
-
-.personal-label {
-  color: #4CAF50;
-}
-
-.toggle-button {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 20px;
-}
-
-.toggle-btn {
-  padding: 10px 20px;
-  margin: 0 10px;
-  border: none;
-  border-radius: 5px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.toggle-btn.active {
-  background-color: #4CAF50;
-  color: white;
-}
-
-::placeholder {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  font-size: 16px; /* Adjust font size as needed */
-  /* Add any other desired placeholder styles */
 }
 </style>

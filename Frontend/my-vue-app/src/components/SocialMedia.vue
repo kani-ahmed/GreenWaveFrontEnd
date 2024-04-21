@@ -8,11 +8,11 @@
           <!-- Buttons for adding friends, creating a post, and sending a message -->
           <button class="square-button" @click="addfriends">Add Friends</button>
           <button class="square-button" @click="openPostModal()">Create Post</button>
-          <button class="square-button" @click="showMessage()">Send Message</button>
+          <button class="square-button" @click="openSendMessage()">Send Message</button>
         </div>
         <div class="button-group-bottom">
           <!-- Buttons for viewing friend list and all posts -->
-          <button class="square-button" @click="Friends">View Friends</button>
+          <button class="square-button" @click="Friends">Friend List</button>
           <button class="square-button" @click="getAllPosts()">View Posts</button>
         </div>
       </div>
@@ -23,11 +23,11 @@
   <div v-if="showPostModal" class="modal">
     <div class="modal-content">
       <span class="close" @click="showPostModal = false">&times;</span>
-      <h2>Create Post</h2>
+      <h2>Post</h2>
       <!-- Text area for writing the post content -->
-      <textarea v-model="postContent" placeholder="Write your post here" class="post-textarea"></textarea>
+      <textarea v-model="postContent" placeholder="Write your post here"></textarea>
       <!-- Button to submit the post -->
-      <button @click="createPost()" class="submit-button">Submit</button>
+      <button @click="createPost()">Submit</button>
     </div>
   </div>
 
@@ -35,7 +35,7 @@
   <div v-if="showAddFriendModal" class="modal">
     <div class="modal-content">
       <span class="close" @click="showAddFriendModal = false">&times;</span>
-      <h2>Add Friends</h2>
+      <h2>Add Friends </h2>
       <div class="filter-container">
         <label for="filterBy">Filter By:</label>
         <select id="filterBy" v-model="selectedFilter">
@@ -49,10 +49,10 @@
         <table class="add-friends-table">
           <thead>
           <tr>
-            <th class="green-header">People</th>
-            <th class="green-header">Action</th>
-            <th class="green-header">Friendship Status</th>
-            <th class="green-header">Requested Date</th>
+            <th>People</th>
+            <th>Action</th>
+            <th>Friendship Status</th>
+            <th>Requested Date</th>
           </tr>
           </thead>
           <tbody>
@@ -61,10 +61,18 @@
             <td>
               <button
                   class="friendship-button"
-                  :class="{ 'requested': getFriendshipStatus(user.user_id) === 'requested', 'not-requested': getFriendshipStatus(user.user_id) !== 'requested' }"
+                  :class="{
+                    'requested': getFriendshipStatus(user.user_id) === 'requested',
+                    'not-requested': getFriendshipStatus(user.user_id) === 'None',
+                    'accepted': getFriendshipStatus(user.user_id) === 'Accepted'
+                  }"
+                  :disabled="getFriendshipStatus(user.user_id) === 'Accepted'"
                   @click="toggleFriendRequest(user.user_id)"
               >
-                {{ getFriendshipStatus(user.user_id) === 'requested' ? 'Cancel Request' : 'Send Request' }}
+                {{
+                  getFriendshipStatus(user.user_id) === 'requested' ? 'Cancel Request' :
+                      getFriendshipStatus(user.user_id) === 'Accepted' ? 'Friends' : 'Send Request'
+                }}
               </button>
             </td>
             <td>{{ getFriendshipStatus(user.user_id) }}</td>
@@ -80,10 +88,8 @@
       <div class="modal-content">
         <span class="close" @click="showSendMessageModal = false">&times;</span>
         <h2>Send Message</h2>
-        <!-- Text area for writing the message content -->
-        <textarea v-model="messageContent" placeholder="Write your message here" class="post-textarea"></textarea>
-        <!-- Button to send the message -->
-        <button @click="sendMessage()" class="submit-button">Send</button>
+        <textarea v-model="messageContent" placeholder="Write your message here"></textarea>
+        <button @click="sendMessage()">Send</button>
       </div>
     </div>
 
@@ -112,7 +118,6 @@
     </div>
   </div>
 
-
   <div v-if="showViewPostsModal" class="modal">
     <div class="modal-content">
       <span class="close" @click="showViewPostsModal = false">&times;</span>
@@ -131,6 +136,83 @@
             <td>{{ post.created_at }}</td>
             <td>{{ post.content }}</td>
           </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Friend List -->
+  <div v-if="showFriendListModal" class="modal">
+    <div class="modal-content">
+      <span class="close" @click="showFriendListModal = false">&times;</span>
+      <h2>Friend List</h2>
+      <div class="filter-container">
+        <label for="filterBy">Filter By:</label>
+        <select id="filterBy" v-model="selectedFriendFilter">
+          <option value="All">All</option>
+          <option value="Friends">Friends</option>
+          <option value="Incoming">Incoming Requests</option>
+          <option value="Outgoing">Outgoing Requests</option>
+        </select>
+        <input type="text" v-model="friendSearchQuery" placeholder="Search friends...">
+      </div>
+      <div class="add-friends-table-container">
+        <table class="add-friends-table">
+          <thead>
+          <tr>
+            <th>Friends</th>
+            <th>Friendship Status</th>
+            <th>Action</th>
+            <th>Request Date</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr v-for="friendship in filteredFriends" :key="friendship.id">
+            <td>{{ friendship.friend_name }}</td>
+            <td>
+            <span
+                class="friendship-status"
+                :class="{
+                  'accepted': friendship.status === 'accepted',
+                  'incoming-request': friendship.request_type === 'incoming' && friendship.status !== 'accepted',
+                  'outgoing-request': friendship.request_type === 'outgoing' && friendship.status !== 'accepted'
+                }"
+            >
+              {{
+                friendship.status === 'accepted' ? 'Friends' :
+                    friendship.request_type === 'incoming' ? 'Incoming Request' :
+                        friendship.request_type === 'outgoing' ? 'Outgoing Request' : ''
+              }}
+            </span>
+            </td>
+            <td>
+              <button
+                  v-if="friendship.status === 'accepted'"
+                  class="friendship-button requested"
+                  @click="cancelFriendRequest(friendship.friend_id)"
+              >
+                Remove
+              </button>
+              <div v-else-if="friendship.request_type === 'incoming'" class="dropdown">
+                <button class="friendship-button requested dropdown-toggle" type="button" data-toggle="dropdown">
+                  Action
+                </button>
+                <div class="dropdown-menu">
+                  <a class="dropdown-item" @click="respondToFriendRequest(friendship.friend_id, 'accept')">Accept</a>
+                  <a class="dropdown-item" @click="respondToFriendRequest(friendship.friend_id, 'decline')">Decline</a>
+                </div>
+              </div>
+              <button
+                  v-else-if="friendship.request_type === 'outgoing'"
+                  class="friendship-button requested-friendslist"
+                  @click="cancelFriendRequest(friendship.friend_id)"
+              >
+                Cancel Request
+              </button>
+            </td>
+            <td>{{ friendship.created_at }}</td>
+          </tr>
+          </tbody>
         </table>
       </div>
     </div>
@@ -163,12 +245,38 @@ export default {
 
       if (this.selectedFilter === 'Action') {
         filtered = filtered.filter(user =>
-            this.getFriendshipStatus(user.user_id) !== 'None'
+            this.getFriendshipStatus(user.user_id) !== 'None' &&
+            this.getFriendshipRequestType(user.user_id) !== 'incoming'
         );
       } else if (this.selectedFilter === 'Status') {
         filtered = filtered.filter(user =>
-            this.getFriendshipStatus(user.user_id) !== 'None'
+            this.getFriendshipStatus(user.user_id) !== 'None' &&
+            this.getFriendshipRequestType(user.user_id) !== 'incoming'
         );
+      }
+
+      // Exclude users who have sent an incoming friend request
+      filtered = filtered.filter(user =>
+          this.getFriendshipRequestType(user.user_id) !== 'incoming'
+      );
+
+      return filtered;
+    },
+    filteredFriends() {
+      let filtered = this.friendships;
+
+      if (this.friendSearchQuery) {
+        filtered = filtered.filter(friendship =>
+            friendship.friend_name.toLowerCase().includes(this.friendSearchQuery.toLowerCase())
+        );
+      }
+
+      if (this.selectedFriendFilter === 'Friends') {
+        filtered = filtered.filter(friendship => friendship.status === 'accepted');
+      } else if (this.selectedFriendFilter === 'Incoming') {
+        filtered = filtered.filter(friendship => friendship.request_type === 'incoming');
+      } else if (this.selectedFriendFilter === 'Outgoing') {
+        filtered = filtered.filter(friendship => friendship.request_type === 'outgoing');
       }
 
       return filtered;
@@ -190,6 +298,10 @@ export default {
       friendships: [],
       selectedFilter: 'People',
       searchQuery: '',
+      showFriendListModal: false,
+      friendList: [],
+      selectedFriendFilter: 'People',
+      friendSearchQuery: '',
 
     };
   },
@@ -241,7 +353,7 @@ export default {
           friendship => (friendship.user_id === this.userID && friendship.friend_id === userId) ||
               (friendship.user_id === userId && friendship.friend_id === this.userID)
       );
-      return friendship ? friendship.status : 'None';
+      return friendship ? (friendship.status === 'accepted' ? 'Accepted' : friendship.status) : 'None';
     },
 
     getFriendshipRequestedDate(userId) {
@@ -293,9 +405,8 @@ export default {
           });
     },
 
-
     showMessage() {
-
+      // Add logic to show the add friends modal
       if (!this.userID) {
         console.error('Id is empty');
         return;
@@ -370,22 +481,44 @@ export default {
       // Add logic to show the send message modal
     },
 
+    openSendMessage() {
+      this.showSendMessageModal = true;
+    },
 
     // Method to view friend list
     Friends() {
-      this.showAddFriendModal = true;
-      // Add logic to show the friend list modal
+      this.getUserFriendships();
+      this.showFriendListModal = true;
     },
     viewPosts() {
       // Add logic to show the view posts modal
     },
+
+    respondToFriendRequest(userId, action) {
+      console.log('Responding to friend request');
+      const url = `https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/respond_friend_request/${this.userID}/${userId}`;
+      axios.post(url, {action})
+          .then(response => {
+            if (response.status === 200) {
+              this.getUserFriendships();
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error.response);
+          });
+    },
+
+    getFriendshipRequestType(userId) {
+      const friendship = this.friendships.find(
+          friendship => (friendship.user_id === this.userID && friendship.friend_id === userId) ||
+              (friendship.user_id === userId && friendship.friend_id === this.userID)
+      );
+      return friendship ? friendship.request_type : 'None';
+    },
+
   }
-  ,
-
-
 }
 
-// You can add your JavaScript logic here
 </script>
 
 <style scoped>
@@ -472,54 +605,6 @@ main {
   max-width: 600px;
 }
 
-/* Close button style */
-.close {
-  float: right;
-  font-size: 24px;
-  cursor: pointer;
-  color: #aaa;
-}
-
-.close:hover,
-.close:focus {
-  color: #000;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-/* Text area style */
-.post-textarea {
-  width: 90%;
-  height: 150px;
-  padding: 10px;
-  margin-bottom: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  resize: none;
-}
-
-/* Placeholder text style */
-.post-textarea::placeholder {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  font-size: 16px; /* Adjust font size as needed */
-  color: #999; /* Adjust placeholder text color as needed */
-}
-
-/* Submit button style */
-.submit-button {
-  background-color: #4CAF50;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
-}
-
-.submit-button:hover {
-  background-color: #45a049;
-}
-
 .posts-container {
   overflow-y: auto;
   /* Only vertical scrolling */
@@ -552,7 +637,7 @@ th {
 }
 
 .add-friends-table-container {
-  max-height: 400px; /* Adjust the height as needed */
+  max-height: 400px;
   overflow-y: auto;
   margin-top: 20px;
 }
@@ -591,7 +676,7 @@ th {
 }
 
 .friendship-button.requested {
-  background-color: #4CAF50;
+  background-color: #b52f7c;
   color: white;
 }
 
@@ -629,11 +714,74 @@ th {
   margin-left: 10px;
 }
 
-.green-header {
-  background-color: #4CAF50 !important;
-  padding: 8px;
+.friendship-button.accepted {
+  background-color: #4CAF50;
+  color: white;
+  cursor: default;
 }
 
+.friendship-status {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 4px;
+}
 
-/* Add other CSS styles to match the design of the second photo */
+.friendship-status.accepted {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.friendship-status.incoming-request {
+  background-color: #18b4ec;
+  color: white;
+}
+
+.friendship-status.outgoing-request {
+  background-color: #4555a8;
+  color: white;
+}
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-toggle {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  background-color: #b52f7c;
+  color: white;
+}
+
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 120px;
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+.dropdown:hover .dropdown-menu {
+  display: block;
+}
+
+.dropdown-item {
+  padding: 8px 16px;
+  text-decoration: none;
+  display: block;
+  cursor: pointer;
+}
+
+.dropdown-item:hover {
+  background-color: #f1f1f1;
+}
+
+.requested-friendslist {
+  background-color: #FF0000;
+  color: white;
+}
 </style>

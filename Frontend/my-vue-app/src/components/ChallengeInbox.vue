@@ -27,40 +27,81 @@
 </template>
 
 <script>
+import axios from 'axios';
+import { mapGetters } from 'vuex';
+
 export default {
   name: 'ChallengeInbox',
-  // Any component logic goes here
+  computed: {
+    ...mapGetters(['currentUser']),
+    userID() {
+      return this.currentUser ? this.currentUser.userId : null;
+    },
+  },
   data() {
     return {
       challenges: [] // Array to store challenge items
     };
   },
   methods: {
-    // Method to handle accepting a challenge
     acceptChallenge(index) {
-      // Log accepted challenge
       console.log('Accepting challenge:', this.challenges[index]);
-      // Remove the accepted challenge from the challenges array
       this.challenges.splice(index, 1);
     },
-    // Method to handle rejecting a challenge
     rejectChallenge(index) {
-      // Log rejected challenge
       console.log('Rejecting challenge:', this.challenges[index]);
-      // Remove the rejected challenge from the challenges array
       this.challenges.splice(index, 1);
     },
-    // Method to temporarily add a challenge
-    tempAddChallenge(sender, challenge) {
-      // Add challenge to the challenges array
-      this.challenges.push({
-        sender: sender,
-        description: challenge
+    tempAddChallenge(sender, description) {
+      this.challenges.push({ sender, description });
+    },
+
+    async joinPersonalChallenge() {
+      if (!this.userID) {
+        console.error("User ID is empty");
+        return;
+      }
+      const url = 'https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/join_personal_challenge';
+      try {
+        const response = await axios.post(url, {
+          user_id: this.userID,
+          challenge_id: this.challenge_id
+        });
+        if (response.status === 200) {
+          console.log(response.data);
+          const challenge = response.data;
+          this.challenges.push(challenge);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+  },
+
+  async joinCommunityChallenge() {
+    if (!this.userID) {
+      console.error("User ID is empty");
+      return;
+    }
+    const url = 'https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/join_community_challenge';
+    try {
+      const response = await axios.post(url, {
+        user_id: this.userID,
+        challenge_id: this.challenge_id
       });
+      if (response.status === 200) {
+        console.log(response.data);
+        const challenge = response.data;
+        this.challenges.push(challenge);
+      }
+    } catch (error) {
+      console.error('Error:', error);
     }
   }
 }
 </script>
+
+
 
 <style scoped>
 /* Component-specific styles go here */
