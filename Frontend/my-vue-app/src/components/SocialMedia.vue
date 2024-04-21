@@ -23,11 +23,11 @@
   <div v-if="showPostModal" class="modal">
     <div class="modal-content">
       <span class="close" @click="showPostModal = false">&times;</span>
-      <h2>Post</h2>
+      <h2>Create Post</h2>
       <!-- Text area for writing the post content -->
-      <textarea v-model="postContent" placeholder="Write your post here"></textarea>
+      <textarea v-model="postContent" placeholder="Write your post here" class="post-textarea"></textarea>
       <!-- Button to submit the post -->
-      <button @click="createPost()">Submit</button>
+      <button @click="createPost()" class="submit-button">Submit</button>
     </div>
   </div>
 
@@ -761,7 +761,7 @@ th {
   position: absolute;
   background-color: #f9f9f9;
   min-width: 120px;
-  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+  box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
   z-index: 1;
 }
 
@@ -783,5 +783,38 @@ th {
 .requested-friendslist {
   background-color: #FF0000;
   color: white;
+}
+
+/* Text area style */
+.post-textarea {
+  width: 90%;
+  height: 150px;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  resize: none;
+}
+
+/* Placeholder text style */
+.post-textarea::placeholder {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  font-size: 16px; /* Adjust font size as needed */
+  color: #999; /* Adjust placeholder text color as needed */
+}
+
+/* Submit button style */
+.submit-button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.submit-button:hover {
+  background-color: #45a049;
 }
 </style>
