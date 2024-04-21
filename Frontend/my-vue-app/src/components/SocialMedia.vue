@@ -217,16 +217,21 @@
       </div>
     </div>
   </div>
-
+  <!-- Toast component for displaying messages -->
+  <toast-component ref="toast" :message="toastMessage" />
 </template>
 
 <script>
 
 import axios from 'axios';
 import {mapGetters} from 'vuex';
+import ToastComponent from './ToastComponent.vue';
 
 
 export default {
+  components: {
+    ToastComponent, // Register the ToastComponent
+  },
   // Importing computed properties from Vuex store
   computed: {
     ...mapGetters(['currentUser']),
@@ -302,6 +307,7 @@ export default {
       friendList: [],
       selectedFriendFilter: 'People',
       friendSearchQuery: '',
+      toastMessage: '',
 
     };
   },
@@ -428,12 +434,16 @@ export default {
         user_id: this.userID,
         content: this.postContent
       }).then(response => {
-        if (response.status === 200) {
+        if (response.status === 201) {
           console.log(response.data);
           this.content = response.data;
           console.log(this.content);
+          this.toastMessage = "Successfuly Created Post.";
+          this.$refs.toast.showToast(3000, 'success', this.toastMessage);
         } else {
-          console.error('Post not found.');
+          console.error('Post could not be created.');
+          this.toastMessage = "Post could not be created.";
+          this.$refs.toast.showToast(3000, 'error', this.toastMessage);
         }
       })
           .catch(error => {
