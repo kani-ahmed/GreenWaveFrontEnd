@@ -48,42 +48,38 @@
       <div class="add-friends-table-container">
         <table class="add-friends-table">
           <thead>
-          <tr>
-            <th>People</th>
-            <th>Action</th>
-            <th>Friendship Status</th>
-            <th>Requested Date</th>
-          </tr>
+            <tr>
+              <th>People</th>
+              <th>Action</th>
+              <th>Friendship Status</th>
+              <th>Requested Date</th>
+            </tr>
           </thead>
           <tbody>
-          <tr v-for="user in filteredUsers" :key="user.user_id">
-            <td>{{ user.username }}</td>
-            <td>
-              <button
-                  class="friendship-button"
-                  :class="{
+            <tr v-for="user in filteredUsers" :key="user.user_id">
+              <td>{{ user.username }}</td>
+              <td>
+                <button class="friendship-button" :class="{
                     'requested': getFriendshipStatus(user.user_id) === 'requested',
                     'not-requested': getFriendshipStatus(user.user_id) === 'None',
                     'accepted': getFriendshipStatus(user.user_id) === 'Accepted'
-                  }"
-                  :disabled="getFriendshipStatus(user.user_id) === 'Accepted'"
-                  @click="toggleFriendRequest(user.user_id)"
-              >
-                {{
+                  }" :disabled="getFriendshipStatus(user.user_id) === 'Accepted'"
+                  @click="toggleFriendRequest(user.user_id)">
+                  {{
                   getFriendshipStatus(user.user_id) === 'requested' ? 'Cancel Request' :
                       getFriendshipStatus(user.user_id) === 'Accepted' ? 'Friends' : 'Send Request'
                 }}
-              </button>
-            </td>
-            <td>{{ getFriendshipStatus(user.user_id) }}</td>
-            <td>{{ getFriendshipRequestedDate(user.user_id) }}</td>
-          </tr>
+                </button>
+              </td>
+              <td>{{ getFriendshipStatus(user.user_id) }}</td>
+              <td>{{ getFriendshipRequestedDate(user.user_id) }}</td>
+            </tr>
           </tbody>
         </table>
       </div>
     </div>
 
-    <!-- Send Message -->
+    <!-- Send Message 
     <div v-if="showSendMessageModal" class="modal">
       <div class="modal-content">
         <span class="close" @click="showSendMessageModal = false">&times;</span>
@@ -92,7 +88,7 @@
         <button @click="sendMessage()">Send</button>
       </div>
     </div>
-
+    -->
 
     <div v-if="showViewPostsModal" class="modal">
       <div class="modal-content">
@@ -117,6 +113,18 @@
       </div>
     </div>
   </div>
+
+  <!-- Send Message -->
+  <div v-if="showSendMessageModal" class="modal">
+    <div class="modal-content">
+      <span class="close" @click="showSendMessageModal = false">&times;</span>
+      <h2>Send Message</h2>
+      <textarea v-model="messageContent" placeholder="Write your message here"></textarea>
+      <button @click="sendMessage()">Send</button>
+    </div>
+  </div>
+
+
 
   <div v-if="showViewPostsModal" class="modal">
     <div class="modal-content">
@@ -159,59 +167,51 @@
       <div class="add-friends-table-container">
         <table class="add-friends-table">
           <thead>
-          <tr>
-            <th>Friends</th>
-            <th>Friendship Status</th>
-            <th>Action</th>
-            <th>Request Date</th>
-          </tr>
+            <tr>
+              <th>Friends</th>
+              <th>Friendship Status</th>
+              <th>Action</th>
+              <th>Request Date</th>
+            </tr>
           </thead>
           <tbody>
-          <tr v-for="friendship in filteredFriends" :key="friendship.id">
-            <td>{{ friendship.friend_name }}</td>
-            <td>
-            <span
-                class="friendship-status"
-                :class="{
+            <tr v-for="friendship in filteredFriends" :key="friendship.id">
+              <td>{{ friendship.friend_name }}</td>
+              <td>
+                <span class="friendship-status" :class="{
                   'accepted': friendship.status === 'accepted',
                   'incoming-request': friendship.request_type === 'incoming' && friendship.status !== 'accepted',
                   'outgoing-request': friendship.request_type === 'outgoing' && friendship.status !== 'accepted'
-                }"
-            >
-              {{
+                }">
+                  {{
                 friendship.status === 'accepted' ? 'Friends' :
                     friendship.request_type === 'incoming' ? 'Incoming Request' :
                         friendship.request_type === 'outgoing' ? 'Outgoing Request' : ''
               }}
-            </span>
-            </td>
-            <td>
-              <button
-                  v-if="friendship.status === 'accepted'"
-                  class="friendship-button requested"
-                  @click="cancelFriendRequest(friendship.friend_id)"
-              >
-                Remove
-              </button>
-              <div v-else-if="friendship.request_type === 'incoming'" class="dropdown">
-                <button class="friendship-button requested dropdown-toggle" type="button" data-toggle="dropdown">
-                  Action
+                </span>
+              </td>
+              <td>
+                <button v-if="friendship.status === 'accepted'" class="friendship-button requested"
+                  @click="cancelFriendRequest(friendship.friend_id)">
+                  Remove
                 </button>
-                <div class="dropdown-menu">
-                  <a class="dropdown-item" @click="respondToFriendRequest(friendship.friend_id, 'accept')">Accept</a>
-                  <a class="dropdown-item" @click="respondToFriendRequest(friendship.friend_id, 'decline')">Decline</a>
+                <div v-else-if="friendship.request_type === 'incoming'" class="dropdown">
+                  <button class="friendship-button requested dropdown-toggle" type="button" data-toggle="dropdown">
+                    Action
+                  </button>
+                  <div class="dropdown-menu">
+                    <a class="dropdown-item" @click="respondToFriendRequest(friendship.friend_id, 'accept')">Accept</a>
+                    <a class="dropdown-item"
+                      @click="respondToFriendRequest(friendship.friend_id, 'decline')">Decline</a>
+                  </div>
                 </div>
-              </div>
-              <button
-                  v-else-if="friendship.request_type === 'outgoing'"
-                  class="friendship-button requested-friendslist"
-                  @click="cancelFriendRequest(friendship.friend_id)"
-              >
-                Cancel Request
-              </button>
-            </td>
-            <td>{{ friendship.created_at }}</td>
-          </tr>
+                <button v-else-if="friendship.request_type === 'outgoing'"
+                  class="friendship-button requested-friendslist" @click="cancelFriendRequest(friendship.friend_id)">
+                  Cancel Request
+                </button>
+              </td>
+              <td>{{ friendship.created_at }}</td>
+            </tr>
           </tbody>
         </table>
       </div>
