@@ -613,6 +613,7 @@ main {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   width: 80%;
   max-width: 600px;
+  border: 1px solid #4CAF50;
 }
 
 .posts-container {
@@ -655,6 +656,7 @@ th {
 .add-friends-table {
   width: 100%;
   border-collapse: collapse;
+  
 }
 
 .add-friends-table th,
@@ -665,7 +667,7 @@ th {
 }
 
 .add-friends-table th {
-  background-color: #f2f2f2;
+  background-color: #4CAF50;
   font-weight: bold;
 }
 
@@ -683,6 +685,7 @@ th {
   border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.3s;
+  background-color: #4CAF50;
 }
 
 .friendship-button.requested {
