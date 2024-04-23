@@ -49,29 +49,28 @@
       <!-- Submit Button -->
       <button class="submit-button" @click="sendPersonalChallenge()">Send Personal Challenge!</button>
     </div>
+    <!-- Vue Select component replaced by standard select for community challenges -->
     <div v-else>
       <div class="input-group">
-    
-      <!-- Label for Community Challenge Dropdown -->
-      <div class="left-dropdown">
-        <label for="challenge" class="dropdown-label personal-label">Community Challenge:</label>
-        <!-- Vue Select component for selecting challenges -->
-        <br><label for="selectedCommunityChallenge">Choose Community Challenge:</label>
-        <vue-select v-model="selectedCommunityChallenge" :options="challenges" placeholder="Type to search" class="custom-select"></vue-select>
+        <div class="left-dropdown">
+          <label for="community-challenge-select" class="dropdown-label personal-label">Community Challenge:</label>
+          <select id="community-challenge-select" v-model="selectedCommunityChallenge" class="custom-select">
+            <option v-for="option in challenges" :value="option.value" :key="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+        </div>
       </div>
-      </div>
-      
-
       <!-- Submit Button -->
       <button class="submit-button" @click="sendCommunityChallenge()">Send Community Challenge!</button>
     </div>
+
       <!-- Your content goes here -->
     </div>
   </div>
 </template>
 
 <script>
-import VueSelect from 'vue3-select'; // Import Vue 3 Select
 import axios from 'axios';
 import { mapGetters } from 'vuex';
 
@@ -85,7 +84,7 @@ export default {
     },
   name: 'SendChallenge',
   components: {
-    VueSelect
+    
   },
   data() {
     return {
@@ -219,6 +218,13 @@ console.log('Future Date:', formattedFutureDate);
   }
 }
 </script>
+
+
+
+
+
+
+
 
 <style scoped>
 /* Styles specific to this component */
