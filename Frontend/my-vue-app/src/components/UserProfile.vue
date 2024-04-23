@@ -97,12 +97,13 @@ export default {
 <style scoped>
 .user-profile {
   padding: 20px; /* Padding around user profile */
-  background-color: #f4f4f4; /* Background color */
+  background-color: #4CAF50; /* Background color */
   border-radius: 10px; /* Rounded corners */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow effect */
   margin: 20px auto; /* Center horizontally with margin */
   max-width: 800px; /* Set the maximum width of the user profile */
   text-align: center; /* Align text content in the user profile to the center */
+  color: white;
 }
 
 img {
@@ -112,7 +113,7 @@ img {
 }
 
 p {
-  color: #333; /* Set the color of paragraph text */
+  color: white; /* Set the color of paragraph text */
   line-height: 1.6; /* Set the line height of paragraphs for better readability */
 }
 
