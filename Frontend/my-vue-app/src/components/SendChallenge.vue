@@ -184,35 +184,32 @@ console.log('Future Date:', formattedFutureDate);
     console.error('Please fill in all fields.');
   }
 },
-    async sendCommunityChallenge() {
-      // Check if a challenge is selected
-      if (this.selectedCommunityChallenge && this.selectedCommunityChallenge.value) {
-        // Access the value property of selectedCommunityChallenge
-        const selectedCommunityChallengeValue = this.selectedCommunityChallenge.value;
-        console.log(`Sending community challenge "${selectedCommunityChallengeValue}"`);
+async sendCommunityChallenge() {
+      if (this.selectedCommunityChallenge) { // Simplified conditional check, assuming 'selectedCommunityChallenge' is properly updated from the dropdown
+        const challengeID = this.selectedCommunityChallenge; // Changed to use the direct value of the selected challenge
+        console.log(`Sending community challenge with ID: ${challengeID}`);
         if (!this.userID) {
-          console.error('Id is empty');
+          console.error('User ID is empty'); // Improved error message for clarity
           return;
         }
         try {
           const url = `https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/create_community_challenge`;
           const response = await axios.post(url, {
-            challenge_id: selectedCommunityChallengeValue, // Use the ID of the selected challenge
+            challenge_id: challengeID,  // Now directly sending the challenge ID
             created_by: this.userID
           });
 
           if (response.status === 200) {
-            console.log(response.data);
-            this.content = response.data; // Make sure to define this.content in your data() function if you want to use it here
-            console.log(this.content);
+            this.content = response.data;
+            console.log('Response:', this.content);
           } else {
-            console.error('Challenge not sent.');
+            console.error('Challenge not sent. Status:', response.status); // Added status code for better error understanding
           }
         } catch (error) {
-          console.error('Error sending challenge:', error);
+          console.error('Error sending challenge:', error); // General error handling unchanged
         }
       } else {
-        console.error('No challenge selected.');
+        console.error('No challenge selected.'); // Error message for no selection unchanged
       }
     }
   }
