@@ -18,6 +18,8 @@
         <div class="button-group bottom">
           <button class="square-button" @click="fetchPersonalChallenges">Challenges in Progress</button>
           <button class="square-button" @click="toggleEcoPoints">{{ ecoPointsText }}</button>
+          <button class="square-button" @click="openChallengeInbox">Challenge Inbox</button>
+          <button class="square-button" @click="openSendChallenges">Send Challenges</button>
         </div>
       </div>
     </main>
@@ -66,13 +68,116 @@
         </div>
       </div>
     </div>
+
+    <!-- Modal for displaying challenge inbox -->
+    <div v-if="showChallengeInboxModal" class="modal">
+      <div class="modal-content">
+        <!-- Close button for the modal -->
+        <span class="close" @click="showChallengeInboxModal = false">&times;</span>
+        <!-- Title for the modal -->
+        <h2>Challenge Inbox</h2>
+        <!-- Buttons for switching between sent and received challenges -->
+        <div class="challenge-type-buttons">
+          <button @click="fetchSentChallenges" :class="{ active: selectedChallengeType === 'sent' }">
+            Sent Challenges
+          </button>
+          <button @click="fetchReceivedChallenges" :class="{ active: selectedChallengeType === 'received' }">
+            Received Challenges
+          </button>
+        </div>
+        <!-- Table to display challenges -->
+        <table>
+          <thead>
+          <tr>
+            <th>Challenge Name</th>
+            <th>{{ selectedChallengeType === 'sent' ? 'Receiver Name' : 'Sender Name' }}</th>
+            <th>{{ selectedChallengeType === 'sent' ? 'Date Sent' : 'Date Received' }}</th>
+            <th>Challenge Type</th>
+            <th v-if="selectedChallengeType === 'received'">Status</th>
+            <th v-if="selectedChallengeType === 'received'">Action</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr v-for="challenge in filteredChallenges" :key="challenge.id">
+            <td>{{ challenge.challenge_name }}</td>
+            <td>{{ selectedChallengeType === 'sent' ? challenge.recipient_username : challenge.sender_username }}</td>
+            <td>{{ formatDate(challenge.timestamp) }}</td>
+            <td>{{ challenge.challenge_type }}</td>
+            <td v-if="selectedChallengeType === 'received'">{{ challenge.status }}</td>
+            <td v-if="selectedChallengeType === 'received'">
+              <div class="dropdown" v-if="challenge.status === 'pending'">
+                <button class="dropdown-toggle">Action</button>
+                <div class="dropdown-menu">
+                  <a class="dropdown-item" @click="acceptChallenge(challenge)">Accept</a>
+                  <a class="dropdown-item" @click="rejectChallenge(challenge)">Reject</a>
+                </div>
+              </div>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Modal for displaying send challenges -->
+    <div v-if="showSendChallengesModal" class="modal">
+      <div class="modal-content">
+        <!-- Close button for the modal -->
+        <span class="close" @click="showSendChallengesModal = false">&times;</span>
+        <!-- Title for the modal -->
+        <h2>Send Challenges</h2>
+        <!-- Buttons for switching between personal and community challenges -->
+        <div class="challenge-type-buttons">
+          <button @click="fetchPersonalChallengesForSending"
+                  :class="{ active: selectedSendChallengeType === 'personal' }">
+            Personal Challenges
+          </button>
+          <button @click="fetchCommunityChallengesForSending"
+                  :class="{ active: selectedSendChallengeType === 'community' }">
+            Community Challenges
+          </button>
+        </div>
+        <!-- Search fields -->
+        <div class="search-fields">
+          <input v-model="challengeSearchQuery" placeholder="Search challenges...">
+          <input v-model="userSearchQuery" placeholder="Search users...">
+        </div>
+        <!-- Table to display challenges -->
+        <table>
+          <thead>
+          <tr>
+            <th>Challenge Name</th>
+            <th>User</th>
+            <th>Action</th>
+            <th>Status</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr v-for="(challenge) in filteredSendChallenges" :key="challenge.id">
+            <td>{{ challenge.name }}</td>
+            <td>
+              <select v-model="selectedUsers[challenge.id]">
+                <option :value="null" disabled>Select a user</option>
+                <option v-for="user in filteredUsers" :key="user.id" :value="user.id">
+                  {{ user.username }}
+                </option>
+              </select>
+            </td>
+            <td>
+              <button @click="sendChallenge(challenge)">Send</button>
+            </td>
+            <td>{{ sendStatus[challenge.id] }}</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
-import { mapGetters } from 'vuex'; // Importing Vuex mapGetters
+import {mapGetters} from 'vuex'; // Importing Vuex mapGetters
 import axios from 'axios'; // Importing Axios for making HTTP requests
-
 
 
 export default {
@@ -82,7 +187,28 @@ export default {
     // Ensure userID is available for all methods
     userID() { // Computed property to get the userID
       return this.currentUser ? this.currentUser.userId : null; // If currentUser exists, return its userID, otherwise return null
-    }
+    },
+    filteredChallenges() {
+      if (this.selectedChallengeType === 'sent') {
+        return this.sentChallenges.filter(challenge =>
+            challenge.challenge_name.toLowerCase().includes(this.searchQuery.toLowerCase())
+        );
+      } else {
+        return this.receivedChallenges.filter(challenge =>
+            challenge.challenge_name.toLowerCase().includes(this.searchQuery.toLowerCase())
+        );
+      }
+    },
+    filteredSendChallenges() {
+      return this.sendChallenges.filter(challenge =>
+          challenge.name.toLowerCase().includes(this.challengeSearchQuery.toLowerCase())
+      );
+    },
+    filteredUsers() {
+      return this.users.filter(user =>
+          user.username.toLowerCase().includes(this.userSearchQuery.toLowerCase())
+      );
+    },
   },
   data() {
     return {
@@ -91,12 +217,34 @@ export default {
       challenges: [], // Array to store challenges
       showModal: false, // Flag to control display of challenge modal
       badges: [], // Array to store user badges
-      showBadgesModal: false // Flag to control display of badges modal
+      showBadgesModal: false, // Flag to control display of badges modal
+      showChallengeInboxModal: false,
+      selectedChallengeType: 'received',
+      sentChallenges: [],
+      receivedChallenges: [],
+      searchQuery: '',
+      showSendChallengesModal: false,
+      selectedSendChallengeType: 'personal',
+      sendChallenges: [],
+      challengeSearchQuery: '',
+      userSearchQuery: '',
+      users: [],
+      selectedUsers: [],
+      sendStatus: [],
     };
   },
   methods: {
     navigateTo(routeName) { // Method to navigate to a specified route
-      this.$router.push({ name: routeName }); // Pushing route to router with specified name
+      this.$router.push({name: routeName}); // Pushing route to router with specified name
+    },
+    openChallengeInbox() {
+      this.showChallengeInboxModal = true;
+      this.fetchReceivedChallenges();
+    },
+    openSendChallenges() {
+      this.showSendChallengesModal = true;
+      this.fetchPersonalChallengesForSending();
+      this.fetchUsers();
     },
     toggleEcoPoints() { // Method to toggle display of eco points
       if (!this.userID) { // If userID is not available
@@ -155,29 +303,29 @@ export default {
       const url = `https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/get_personal_challenges/${this.userID}`;
 
       axios.get(url)
-        .then(response => {
-          if (response.status === 200) {
-            console.log("Fetch successful!");
-            this.challenges = response.data;  // Store fetched challenges
-            this.showModal = true;  // Show the modal
-          } else {
-            console.error('Challenges not found.');
-          }
-        })
-        .catch(error => {
-          console.error("Error:", error.response);
-        });
-      },
+          .then(response => {
+            if (response.status === 200) {
+              console.log("Fetch successful!");
+              this.challenges = response.data;  // Store fetched challenges
+              this.showModal = true;  // Show the modal
+            } else {
+              console.error('Challenges not found.');
+            }
+          })
+          .catch(error => {
+            console.error("Error:", error.response);
+          });
+    },
 
-      fetchUserBadges() { // Method to fetch user badges
-        if (!this.userID) { // If userID is not available
-          console.error('User ID is not available.');
-          return;
-        }
-        // Replace with your actual API call to fetch badges
-        const url = `https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/get_badges/${this.userID}`;
+    fetchUserBadges() { // Method to fetch user badges
+      if (!this.userID) { // If userID is not available
+        console.error('User ID is not available.');
+        return;
+      }
+      // Replace with your actual API call to fetch badges
+      const url = `https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/get_badges/${this.userID}`;
 
-        axios.get(url)
+      axios.get(url)
           .then(response => {
             if (response.status === 200) {
               this.badges = response.data.badges;  // Store fetched badges
@@ -189,12 +337,218 @@ export default {
           .catch(error => {
             console.error("Error:", error.response);
           });
-      },
+    },
 
-      getBadgeImagePath(badgeName) { // Method to get badge image path
-        // Requires the image from the assets folder so webpack can process it
-        return require(`@/assets/Badges/${badgeName}.png`); // Return the path to the badge image
-      },
+    getBadgeImagePath(badgeName) { // Method to get badge image path
+      // Requires the image from the assets folder so webpack can process it
+      return require(`@/assets/Badges/${badgeName}.png`); // Return the path to the badge image
+    },
+    fetchSentChallenges() {
+      this.selectedChallengeType = 'sent';
+      const url = `https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/get_sent_personal_challenges/${this.userID}`;
+      axios
+          .get(url)
+          .then(response => {
+            if (response.status === 200) {
+              this.sentChallenges = response.data.map(challenge => ({
+                ...challenge,
+                challenge_type: 'Personal',
+              }));
+            } else {
+              console.error('Sent personal challenges not found.');
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error.response);
+          });
+
+      const communityChallengeUrl = `https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/get_sent_community_challenges/${this.userID}`;
+      axios
+          .get(communityChallengeUrl)
+          .then(response => {
+            if (response.status === 200) {
+              const communityChallenges = response.data.map(challenge => ({
+                ...challenge,
+                challenge_type: 'Community',
+              }));
+              this.sentChallenges = [...this.sentChallenges, ...communityChallenges];
+            } else {
+              console.error('Sent community challenges not found.');
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error.response);
+          });
+    },
+    fetchReceivedChallenges() {
+      this.selectedChallengeType = 'received';
+      const url = `https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/get_received_personal_challenges/${this.userID}`;
+      axios
+          .get(url)
+          .then(response => {
+            if (response.status === 200) {
+              this.receivedChallenges = response.data.map(challenge => ({
+                ...challenge,
+                challenge_type: 'Personal',
+              }));
+            } else {
+              console.error('Received personal challenges not found.');
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error.response);
+          });
+
+      const communityChallengeUrl = `https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/get_received_community_challenges/${this.userID}`;
+      axios
+          .get(communityChallengeUrl)
+          .then(response => {
+            if (response.status === 200) {
+              const communityChallenges = response.data.map(challenge => ({
+                ...challenge,
+                challenge_type: 'Community',
+              }));
+              this.receivedChallenges = [...this.receivedChallenges, ...communityChallenges];
+            } else {
+              console.error('Received community challenges not found.');
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error.response);
+          });
+    },
+
+    acceptChallenge(challenge) {
+      const url = 'https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/accept_challenge';
+      axios
+          .put(url, {
+            challenge_id: challenge.id,
+            user_id: this.userID,
+            challenge_type: challenge.challenge_type.toLowerCase(),
+          })
+          .then(response => {
+            if (response.status === 200) {
+              challenge.status = 'accepted';
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error.response);
+          });
+    },
+    rejectChallenge(challenge) {
+      const url = 'https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/reject_challenge';
+      axios
+          .put(url, {
+            challenge_id: challenge.id,
+            user_id: this.userID,
+            challenge_type: challenge.challenge_type.toLowerCase(),
+          })
+          .then(response => {
+            if (response.status === 200) {
+              challenge.status = 'rejected';
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error.response);
+          });
+    },
+    formatDate(dateString) {
+      const date = new Date(dateString);
+      return date.toLocaleDateString();
+    },
+
+    fetchPersonalChallengesForSending() {
+      this.selectedSendChallengeType = 'personal';
+      const url = `https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/get_personal_challenges/${this.userID}`;
+      axios
+          .get(url)
+          .then(response => {
+            if (response.status === 200) {
+              this.sendChallenges = response.data;
+            } else {
+              console.error('Personal challenges not found.');
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error.response);
+          });
+    },
+    fetchCommunityChallengesForSending() {
+      this.selectedSendChallengeType = 'community';
+      const url = 'https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/get_community_challenges';
+      axios
+          .get(url)
+          .then(response => {
+            if (response.status === 200) {
+              this.sendChallenges = response.data;
+            } else {
+              console.error('Community challenges not found.');
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error.response);
+          });
+    },
+
+    fetchUsers() {
+      const url = 'https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/get_users';
+      axios
+          .get(url)
+          .then(response => {
+            if (response.status === 200) {
+              this.users = response.data.filter(user => user.user_id !== this.userID);
+              this.selectedUsers = {};
+              this.sendChallenges.forEach(challenge => {
+                this.selectedUsers[challenge.id] = null;
+              });
+              console.log(this.filteredUsers)
+              this.sendStatus = {};
+              this.sendChallenges.forEach(challenge => {
+                this.sendStatus[challenge.id] = '';
+              });
+            } else {
+              console.error('Users not found.');
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error.response);
+          });
+    },
+
+    sendChallenge(challenge) {
+      const recipientId = this.selectedUsers[challenge.id];
+      console.log(this.sendChallenges);
+      console.log(this.selectedUsers);
+      console.log(recipientId);
+      if (!recipientId) {
+        this.sendStatus[challenge.id] = 'Please select a user';
+        return;
+      }
+
+      const url = this.selectedSendChallengeType === 'personal'
+          ? 'https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/send_personal_challenge'
+          : 'https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/send_community_challenge';
+
+      const data = {
+        sender_id: this.userID,
+        recipient_id: recipientId,
+        [this.selectedSendChallengeType === 'personal' ? 'challenge_id' : 'community_challenge_id']: challenge.id,
+      };
+
+      axios
+          .post(url, data)
+          .then(response => {
+            if (response.status === 200) {
+              this.sendStatus[challenge.id] = 'Sent successfully';
+            } else {
+              this.sendStatus[challenge.id] = 'Failed to send';
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error.response);
+            this.sendStatus[challenge.id] = 'Failed to send';
+          });
+    },
   }
 }
 </script>
@@ -343,5 +697,68 @@ th {
   margin: 1rem;
   border: 3px solid #4CAF50;
   border-radius: 50%;
+}
+
+.challenge-type-buttons {
+  margin-bottom: 10px;
+}
+
+.challenge-type-buttons button {
+  margin-right: 10px;
+  padding: 5px 10px;
+  border: none;
+  background-color: #eee;
+  cursor: pointer;
+}
+
+.challenge-type-buttons button.active {
+  background-color: #4caf50;
+  color: white;
+}
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-toggle {
+  padding: 5px 10px;
+  border: none;
+  background-color: #4caf50;
+  color: white;
+  cursor: pointer;
+}
+
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 120px;
+  box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+  z-index: 1;
+}
+
+.dropdown:hover .dropdown-menu {
+  display: block;
+}
+
+.dropdown-item {
+  padding: 8px 16px;
+  text-decoration: none;
+  display: block;
+  cursor: pointer;
+}
+
+.dropdown-item:hover {
+  background-color: #f1f1f1;
+}
+
+.search-fields {
+  margin-bottom: 10px;
+}
+
+.search-fields input {
+  margin-right: 10px;
+  padding: 5px;
 }
 </style>
