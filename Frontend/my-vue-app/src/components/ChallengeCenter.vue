@@ -16,7 +16,7 @@
         </div>
         <!-- Button group for challenges -->
         <div class="button-group bottom">
-          <button class="square-button" @click="fetchPersonalChallenges">Challenges in Progress</button>
+          <button class="square-button" @click="openAndShowModal">Challenges in Progress</button>
           <button class="square-button" @click="toggleEcoPoints">{{ ecoPointsText }}</button>
           <button class="square-button" @click="openChallengeInbox">Challenge Inbox</button>
           <button class="square-button" @click="openSendChallenges">Send Challenges</button>
@@ -32,20 +32,59 @@
         <span class="close" @click="showModal = false">&times;</span>
         <!-- Title for the modal -->
         <h2>Challenges in Progress</h2>
-        <!-- Table to display challenges -->
-        <table>
-          <tr>
-            <th>Name</th>
-            <th>Description</th>
-            <th>Status</th>
-          </tr>
-          <!-- Loop through challenges and display details -->
-          <tr v-for="challenge in challenges" :key="challenge.challenge_id">
-            <td>{{ challenge.name }}</td>
-            <td>{{ challenge.description }}</td>
-            <td>{{ challenge.status }}</td>
-          </tr>
-        </table>
+        <!-- Filtering for the table -->
+        <div class="filter-search">
+          <div class="filter-buttons">
+            <label>Status:</label>
+            <select v-model="selectedStatusInProgressChallenges">
+              <option value="">All</option>
+              <option value="active">Active</option>
+              <option value="Participating">Participating</option>
+            </select>
+            <label>Challenge Type:</label>
+            <select v-model="selectedChallengeTypeInProgress">
+              <option value="">All</option>
+              <option value="Personal">Personal</option>
+              <option value="Community">Community</option>
+            </select>
+          </div>
+          <div class="search-input">
+            <label>Search:</label>
+            <input type="text" v-model="searchQueryInProgress" placeholder="Search...">
+          </div>
+        </div>
+        <div class="table-container">
+          <!-- Table to display challenges -->
+          <table>
+            <tr>
+              <th>Name</th>
+              <th>Status</th>
+              <th>Challenge Type</th>
+              <th>Start Date</th>
+            </tr>
+            <!-- Loop through challenges and display details -->
+            <tr v-for="challenge in filteredUserChallengeStatuses" :key="challenge.challenge_id">
+              <td>{{ challenge.name }}</td>
+              <td>
+                <span class="status-button" :class="{
+                  'status-pending': challenge.status === 'Participating',
+                  'status-accepted': challenge.status === 'active'
+                }">
+                  {{ challenge.status }}
+                </span>
+              </td>
+              <td>
+                <span class="challenge-type-button" :class="{
+                  'challenge-type-personal': challenge.type === 'Personal',
+                  'challenge-type-community': challenge.type === 'Community'
+                }">
+                  {{ challenge.type }}
+                </span>
+              </td>
+              <td>{{ formatDate(challenge.start_date) }}</td>
+            </tr>
+          </table>
+        </div>
       </div>
     </div>
 
@@ -110,54 +149,57 @@
         </div>
         <!-- Table to display challenges -->
         <div class="table-container">
-        <table>
-          <thead>
-          <tr>
-            <th>Challenge Name</th>
-            <th>{{ selectedChallengeCategory === 'sent' ? 'Receiver Name' : 'Sender Name' }}</th>
-            <th>{{ selectedChallengeCategory === 'sent' ? 'Date Sent' : 'Date Received' }}</th>
-            <th>Status</th>
-            <th>Challenge Type</th>
-            <th v-if="selectedChallengeCategory === 'received'">Action</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr v-if="filteredChallenges.length === 0">
-            <td colspan="6">No challenges to display.</td>
-          </tr>
-          <tr v-else v-for="challenge in filteredChallenges" :key="challenge.id">
-            <td>{{ getChallengeName(challenge) }}</td>
-            <td>{{ selectedChallengeCategory === 'sent' ? challenge.recipient_username : challenge.sender_username }}</td>
-            <td>{{ formatDate(challenge.timestamp) }}</td>
-            <td>
-          <span class="status-button" :class="{
-            'status-pending': challenge.status === 'pending',
-            'status-accepted': challenge.status === 'accepted',
-            'status-rejected': challenge.status === 'rejected'
-          }">
-            {{ challenge.status }}
-          </span>
-            </td>
-            <td>
-            <span class="challenge-type-button" :class="{
-              'challenge-type-personal': challenge.challenge_type === 'Personal',
-              'challenge-type-community': challenge.challenge_type === 'Community'
-            }">
-              {{ challenge.challenge_type }}
-            </span>
-            </td>
-            <td v-if="selectedChallengeCategory === 'received'">
-              <div class="dropdown" v-if="challenge.status === 'pending'">
-                <button class="dropdown-toggle">Action</button>
-                <div class="dropdown-menu">
-                  <a class="dropdown-item" @click="acceptChallenge(challenge)">Accept</a>
-                  <a class="dropdown-item" @click="rejectChallenge(challenge)">Reject</a>
+          <table>
+            <thead>
+            <tr>
+              <th>Challenge Name</th>
+              <th>{{ selectedChallengeCategory === 'sent' ? 'Receiver Name' : 'Sender Name' }}</th>
+              <th>{{ selectedChallengeCategory === 'sent' ? 'Date Sent' : 'Date Received' }}</th>
+              <th>Status</th>
+              <th>Challenge Type</th>
+              <th v-if="selectedChallengeCategory === 'received'">Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-if="filteredChallenges.length === 0">
+              <td colspan="6">No challenges to display.</td>
+            </tr>
+            <tr v-else v-for="challenge in filteredChallenges" :key="challenge.id">
+              <td>{{ getChallengeName(challenge) }}</td>
+              <td>{{
+                  selectedChallengeCategory === 'sent' ? challenge.recipient_username : challenge.sender_username
+                }}
+              </td>
+              <td>{{ formatDate(challenge.timestamp) }}</td>
+              <td>
+                <span class="status-button" :class="{
+                  'status-pending': challenge.status === 'pending',
+                  'status-accepted': challenge.status === 'accepted',
+                  'status-rejected': challenge.status === 'rejected'
+                }">
+                  {{ challenge.status }}
+                </span>
+              </td>
+              <td>
+                <span class="challenge-type-button" :class="{
+                  'challenge-type-personal': challenge.challenge_type === 'Personal',
+                  'challenge-type-community': challenge.challenge_type === 'Community'
+                }">
+                  {{ challenge.challenge_type }}
+                </span>
+              </td>
+              <td v-if="selectedChallengeCategory === 'received'">
+                <div class="dropdown" v-if="challenge.status === 'pending'">
+                  <button class="dropdown-toggle">Action</button>
+                  <div class="dropdown-menu">
+                    <a class="dropdown-item" @click="acceptChallenge(challenge)">Accept</a>
+                    <a class="dropdown-item" @click="rejectChallenge(challenge)">Reject</a>
+                  </div>
                 </div>
-              </div>
-            </td>
-          </tr>
-          </tbody>
-        </table>
+              </td>
+            </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -395,6 +437,31 @@ export default {
           challenge.name.toLowerCase().includes(this.challengeSearchQuery.toLowerCase())
       );
     },
+    // filtering for challenges in progress
+    filteredUserChallengeStatuses() {
+      let challenges = this.userChallengeStatuses;
+      if (!Array.isArray(challenges)) return [];
+
+      // Filter by status
+      if (this.selectedStatusInProgressChallenges) {
+        challenges = challenges.filter(challenge => challenge.status === this.selectedStatusInProgressChallenges);
+      }
+
+      // Filter by challenge type
+      if (this.selectedChallengeTypeInProgress) {
+        challenges = challenges.filter(challenge => challenge.type === this.selectedChallengeTypeInProgress);
+      }
+
+      // Filter by search query
+      if (this.searchQueryInProgress) {
+        const searchLower = this.searchQueryInProgress.toLowerCase();
+        challenges = challenges.filter(challenge =>
+            challenge.name.toLowerCase().includes(searchLower)
+        );
+      }
+      console.log(challenges);
+      return challenges;
+    },
   },
   created() {
     this.fetchUserChallengeStatuses();
@@ -433,6 +500,9 @@ export default {
       joinChallenges: [],
       userChallengeStatuses: [],
       isLoadingJoinChallenges: false,
+      selectedChallengeTypeInProgress: 'Personal',
+      selectedStatusInProgressChallenges: '',
+      searchQueryInProgress: '',
     };
   },
   methods: {
@@ -506,6 +576,11 @@ export default {
     closeJoinChallengesModal() {
       this.showJoinChallengesModal = false;
       this.resetJoinChallengesData(); // Call reset method
+    },
+
+    openAndShowModal() {
+      this.fetchUserChallengeStatuses();
+      this.showModal = true;
     },
 
     toggleEcoPoints() { // Method to toggle display of eco points
@@ -830,6 +905,9 @@ export default {
     },
 
     fetchUserChallengeStatuses() {
+      this.selectedChallengeTypeInProgress = '';
+      this.selectedStatusInProgressChallenges = '';
+      this.searchQueryInProgress = '';
       const url = `https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/user_challenge_status/${this.userID}`;
       axios.get(url)
           .then(response => {
