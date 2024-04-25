@@ -656,7 +656,6 @@ th {
 .add-friends-table {
   width: 100%;
   border-collapse: collapse;
-  
 }
 
 .add-friends-table th,

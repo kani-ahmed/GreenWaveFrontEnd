@@ -79,24 +79,46 @@
         <h2>Challenge Inbox</h2>
         <!-- Buttons for switching between sent and received challenges -->
         <div class="challenge-type-buttons">
-          <button @click="fetchSentChallenges" :class="{ active: selectedChallengeType === 'sent' }">
+          <button @click="fetchSentChallenges" :class="{ active: selectedChallengeCategory === 'sent' }">
             Sent Challenges
           </button>
-          <button @click="fetchReceivedChallenges" :class="{ active: selectedChallengeType === 'received' }">
+          <button @click="fetchReceivedChallenges" :class="{ active: selectedChallengeCategory === 'received' }">
             Received Challenges
           </button>
         </div>
+        <!-- Filtering and search -->
+        <div class="filter-search">
+          <div class="filter-buttons">
+            <label>Status:</label>
+            <select v-model="selectedStatus">
+              <option value="">All</option>
+              <option value="pending">Pending</option>
+              <option value="accepted">Accepted</option>
+              <option value="rejected">Rejected</option>
+            </select>
+            <label>Type:</label>
+            <select v-model="selectedChallengeType">
+              <option value="">All</option>
+              <option value="Personal">Personal</option>
+              <option value="Community">Community</option>
+            </select>
+          </div>
+          <div class="search-input">
+            <label>Search:</label>
+            <input type="text" v-model="searchQuery" placeholder="Search...">
+          </div>
+        </div>
         <!-- Table to display challenges -->
+        <div class="table-container">
         <table>
           <thead>
           <tr>
             <th>Challenge Name</th>
-            <th>{{ selectedChallengeType === 'sent' ? 'Receiver Name' : 'Sender Name' }}</th>
-            <th>{{ selectedChallengeType === 'sent' ? 'Date Sent' : 'Date Received' }}</th>
+            <th>{{ selectedChallengeCategory === 'sent' ? 'Receiver Name' : 'Sender Name' }}</th>
+            <th>{{ selectedChallengeCategory === 'sent' ? 'Date Sent' : 'Date Received' }}</th>
             <th>Status</th>
             <th>Challenge Type</th>
-            <th v-if="selectedChallengeType === 'received'">Status</th>
-            <th v-if="selectedChallengeType === 'received'">Action</th>
+            <th v-if="selectedChallengeCategory === 'received'">Action</th>
           </tr>
           </thead>
           <tbody>
@@ -105,12 +127,26 @@
           </tr>
           <tr v-else v-for="challenge in filteredChallenges" :key="challenge.id">
             <td>{{ getChallengeName(challenge) }}</td>
-            <td>{{ selectedChallengeType === 'sent' ? challenge.recipient_username : challenge.sender_username }}</td>
+            <td>{{ selectedChallengeCategory === 'sent' ? challenge.recipient_username : challenge.sender_username }}</td>
             <td>{{ formatDate(challenge.timestamp) }}</td>
-            <td>{{ challenge.status }}</td>
-            <td>{{ challenge.challenge_type }}</td>
-            <td v-if="selectedChallengeType === 'received'">{{ challenge.status }}</td>
-            <td v-if="selectedChallengeType === 'received'">
+            <td>
+          <span class="status-button" :class="{
+            'status-pending': challenge.status === 'pending',
+            'status-accepted': challenge.status === 'accepted',
+            'status-rejected': challenge.status === 'rejected'
+          }">
+            {{ challenge.status }}
+          </span>
+            </td>
+            <td>
+            <span class="challenge-type-button" :class="{
+              'challenge-type-personal': challenge.challenge_type === 'Personal',
+              'challenge-type-community': challenge.challenge_type === 'Community'
+            }">
+              {{ challenge.challenge_type }}
+            </span>
+            </td>
+            <td v-if="selectedChallengeCategory === 'received'">
               <div class="dropdown" v-if="challenge.status === 'pending'">
                 <button class="dropdown-toggle">Action</button>
                 <div class="dropdown-menu">
@@ -122,6 +158,7 @@
           </tr>
           </tbody>
         </table>
+        </div>
       </div>
     </div>
 
@@ -129,7 +166,7 @@
     <div v-if="showSendChallengesModal" class="modal">
       <div class="modal-content">
         <!-- Close button for the modal -->
-        <span class="close" @click="showSendChallengesModal = false">&times;</span>
+        <span class="close" @click="closeSendChallengesModal">&times;</span>
         <!-- Title for the modal -->
         <h2>Send Challenges</h2>
         <!-- Buttons for switching between personal and community challenges -->
@@ -216,13 +253,12 @@
     <div v-if="showJoinChallengesModal" class="modal">
       <div class="modal-content">
         <!-- Close button for the modal -->
-        <span class="close" @click="showJoinChallengesModal = false">&times;</span>
+        <span class="close" @click="closeJoinChallengesModal">&times;</span>
         <!-- Title for the modal -->
         <h2>Join Challenges</h2>
 
         <!-- Loading Indicator using vue-spinner -->
         <div v-if="isLoadingJoinChallenges" class="loading-indicator">
-          <vue-spinner type="ball-scale-ripple-multiple" :color="'#4CAF50'" :scale="1.5"></vue-spinner>
         </div>
         <!-- Content to be shown when not loading -->
         <div v-if="isLoadingJoinChallenges === false">
@@ -295,7 +331,6 @@
 <script>
 import {mapGetters} from 'vuex'; // Importing Vuex mapGetters
 import axios from 'axios';
-import {waitFor} from "@babel/core/lib/gensync-utils/async"; // Importing Axios for making HTTP requests
 
 export default {
   name: 'ChallengeCenter', // Component name
@@ -306,14 +341,30 @@ export default {
       return this.currentUser ? this.currentUser.userId : null; // If currentUser exists, return its userID, otherwise return null
     },
     filteredChallenges() {
-      let challenges = this.selectedChallengeType === 'sent' ? this.sentChallenges : this.receivedChallenges;
+      let challenges = this.selectedChallengeCategory === 'sent' ? this.sentChallenges : this.receivedChallenges;
       if (!Array.isArray(challenges)) return [];
 
-      return challenges.filter(challenge => {
-        const challengeName = challenge.challenge_name || '';
-        const searchQuery = this.searchQuery || '';
-        return challengeName.toLowerCase().includes(searchQuery.toLowerCase());
-      });
+      // Filter by status
+      if (this.selectedStatus) {
+        challenges = challenges.filter(challenge => challenge.status === this.selectedStatus);
+      }
+
+      // Filter by challenge type
+      if (this.selectedChallengeType) {
+        challenges = challenges.filter(challenge => challenge.challenge_type === this.selectedChallengeType);
+      }
+
+      // Filter by search query
+      if (this.searchQuery) {
+        const searchLower = this.searchQuery.toLowerCase();
+        challenges = challenges.filter(challenge =>
+            (challenge.challenge_name || '').toLowerCase().includes(searchLower) ||
+            (challenge.recipient_username || '').toLowerCase().includes(searchLower) ||
+            (challenge.sender_username || '').toLowerCase().includes(searchLower)
+        );
+      }
+
+      return challenges;
     },
     filteredSendPersonalChallenges() {
       return this.sendChallenges.filter(challenge =>
@@ -361,7 +412,9 @@ export default {
       badges: [], // Array to store user badges
       showBadgesModal: false, // Flag to control display of badges modal
       showChallengeInboxModal: false,
-      selectedChallengeType: 'received',
+      selectedChallengeType: '',
+      selectedChallengeCategory: 'received',
+      selectedStatus: '',
       sentChallenges: [],
       receivedChallenges: [],
       searchQuery: '',
@@ -416,14 +469,45 @@ export default {
         this.fetchPersonalChallengesForSending(),
         this.fetchCommunityChallengesForSending(),
       ]).then(() => {
-        waitFor(4000); // Simulate a delay of 1 second
         this.isLoadingJoinChallenges = false;
         this.showJoinChallengesModal = true;
       }).catch(() => {
         this.isLoadingJoinChallenges = false;
-        // Handle error, e.g., show an error message
       });
     },
+
+    // Method to reset Send Challenges modal data
+    resetSendChallengesData() {
+      this.challengeSearchQuery = "";
+      this.userSearchQuery = "";
+      this.filteredSendCommunityChallenges = [];
+      this.filteredSendPersonalChallenges = [];
+      this.sendChallenges = [];
+      this.users = [];
+      this.selectedSendChallengeType = 'personal';
+    },
+
+    // Method to reset Join Challenges modal data
+    resetJoinChallengesData() {
+      // Reset any relevant data for join challenges
+      this.filteredJoinPersonalChallenges = [];
+      this.filteredJoinCommunityChallenges = [];
+      this.joinChallenges = [];
+      this.userChallengeStatuses = [];
+      this.users = [];
+      this.selectedJoinChallengeType = 'personal';
+    },
+
+    closeSendChallengesModal() {
+      this.showSendChallengesModal = false;
+      this.resetSendChallengesData(); // Call reset method
+    },
+
+    closeJoinChallengesModal() {
+      this.showJoinChallengesModal = false;
+      this.resetJoinChallengesData(); // Call reset method
+    },
+
     toggleEcoPoints() { // Method to toggle display of eco points
       if (!this.userID) { // If userID is not available
         alert("Please log in to access eco points."); // Show alert
@@ -523,7 +607,8 @@ export default {
     },
     fetchSentChallenges() {
       this.isLoading = true;
-      this.selectedChallengeType = 'sent';
+      this.selectedChallengeType = '';
+      this.selectedStatus = '';
       const personalChallengesUrl = `https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/get_sent_personal_challenges/${this.userID}`;
       const communityChallengesUrl = `https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/get_sent_community_challenges/${this.userID}`;
 
@@ -547,6 +632,7 @@ export default {
         if (results[1].status === 'rejected') {
           console.error('Error fetching community challenges:', results[1].reason);
         }
+        this.selectedChallengeCategory = 'sent';
       }).finally(() => {
         this.isLoading = false;
       });
@@ -554,7 +640,8 @@ export default {
 
     fetchReceivedChallenges() {
       this.isLoading = true;
-      this.selectedChallengeType = 'received';
+      this.selectedChallengeType = '';
+      this.selectedStatus = '';
       const personalChallengesUrl = `https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/get_received_personal_challenges/${this.userID}`;
       const communityChallengesUrl = `https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/get_received_community_challenges/${this.userID}`;
 
@@ -578,6 +665,7 @@ export default {
         if (results[1].status === 'rejected') {
           console.error('Error fetching community challenges:', results[1].reason);
         }
+        this.selectedChallengeCategory = 'received';
       }).finally(() => {
         this.isLoading = false;
       });
@@ -775,6 +863,21 @@ export default {
             console.error('Error:', error.response);
           });
     },
+  },
+  watch: {
+    showSendChallengesModal(newVal) {
+      if (newVal) {
+        this.fetchUsers();
+        this.fetchPersonalChallengesForSending();
+      }
+    },
+    showJoinChallengesModal(newVal) {
+      if (newVal) {
+        this.fetchUsers();
+        this.fetchUserChallengeStatuses();
+        this.fetchPersonalChallengesForSending();
+      }
+    },
   }
 }
 </script>
@@ -927,14 +1030,19 @@ th {
 
 .challenge-type-buttons {
   margin-bottom: 10px;
+  display: flex;
+  justify-content: center;
+  width: 100%;
 }
 
 .challenge-type-buttons button {
   margin-right: 10px;
   padding: 5px 10px;
-  border: none;
+  border: 1px solid #ccc;
+  border-radius: 5px;
   background-color: #eee;
   cursor: pointer;
+  font-size: 18px;
 }
 
 .challenge-type-buttons button.active {
@@ -1030,5 +1138,96 @@ select {
   background-color: white;
   cursor: pointer;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.status-button {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: #fff;
+  font-weight: bold;
+  margin: 4px;
+}
+
+.status-button:hover {
+  opacity: 0.8;
+}
+
+.status-pending {
+  background-color: #1056b5;
+}
+
+.status-accepted {
+  background-color: #28a745;
+}
+
+.status-rejected {
+  background-color: #dc3545;
+}
+
+.challenge-type-button {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: #fff;
+  font-weight: bold;
+  margin: 4px;
+}
+
+.challenge-type-personal {
+  background-color: #007bff;
+}
+
+.challenge-type-community {
+  background-color: #6c757d;
+}
+
+.table-container {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.filter-search {
+  margin-bottom: 10px;
+  display: flex;
+}
+
+.filter-search select,
+.filter-search input {
+  margin-right: 10px;
+}
+
+.filter-search {
+  margin-bottom: 10px;
+}
+
+.filter-buttons {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.filter-buttons label {
+  margin-right: 5px;
+}
+
+.filter-buttons select {
+  margin-right: 10px;
+  width: 120px;
+  height: 32px;
+}
+
+.search-input {
+  display: flex;
+  align-items: center;
+  width: 80px;
+}
+
+.search-input label {
+  margin-right: 5px;
+}
+
+.search-input input {
+  width: 200px;
 }
 </style>
