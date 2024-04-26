@@ -61,6 +61,7 @@
               <th>Status</th>
               <th>Challenge Type</th>
               <th>Start Date</th>
+              <th>Impact Score</th>
             </tr>
             <!-- Loop through challenges and display details -->
             <tr v-for="challenge in filteredUserChallengeStatuses" :key="challenge.challenge_id">
@@ -82,6 +83,9 @@
                 </span>
               </td>
               <td>{{ formatDate(challenge.start_date) }}</td>
+              <td>
+                <span class="impact-score">{{ challenge.impact_score }}</span>
+              </td>
             </tr>
           </table>
         </div>
@@ -874,7 +878,7 @@ export default {
       const data = {
         sender_id: this.userID,
         recipient_id: recipientId,
-        [this.selectedSendChallengeType === 'personal' ? 'challenge_id' : 'community_challenge_id']: challenge.id,
+        [this.selectedSendChallengeType === 'personal' ? 'challenge_id' : 'community_challenge_id']: this.selectedSendChallengeType === 'personal' ? challenge.challenge_id : challenge.id,
       };
 
       axios
@@ -1307,5 +1311,17 @@ select {
 
 .search-input input {
   width: 200px;
+}
+
+.impact-score {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding-left: 10px;
+  padding-right: 10px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-top: 10px;
+  color: white;
+  background-color: #21809a;
 }
 </style>
