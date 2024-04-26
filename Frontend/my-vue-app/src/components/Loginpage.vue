@@ -49,7 +49,9 @@ export default {
       this.loginUser({ // Dispatch loginUser action with username and password
         username: this.username,
         password: this.password
-      }).catch(error => {
+      }).then(() => {
+        console.log('Logged in user ID:', this.$store.state.userId); // Print user ID to console
+  }).catch(error => {
         console.error('Login error:', error.message); // Log login error if any
       });
     },
