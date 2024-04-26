@@ -114,13 +114,90 @@
     </div>
   </div>
 
-  <!-- Send Message -->
+  <!-- Modal for displaying send messages -->
   <div v-if="showSendMessageModal" class="modal">
     <div class="modal-content">
-      <span class="close" @click="showSendMessageModal = false">&times;</span>
-      <h2>Send Message</h2>
-      <textarea v-model="messageContent" placeholder="Write your message here"></textarea>
-      <button @click="sendMessage()">Send</button>
+      <!-- Close button for the modal -->
+      <span class="close" @click="closeSendMessageModal">&times;</span>
+      <!-- Title for the modal -->
+      <h2>Messages</h2>
+      <!-- Buttons for switching between sent messages, received messages, and send message -->
+      <div class="toggle-button">
+        <button class="toggle-btn" @click="fetchSentMessages" :class="{ active: selectedMessageCategory === 'sent' }">
+          Sent Messages
+        </button>
+        <button class="toggle-btn" @click="fetchReceivedMessages" :class="{ active: selectedMessageCategory === 'received' }">
+          Received Messages
+        </button>
+        <button class="toggle-btn" @click="showSendMessage" :class="{ active: selectedMessageCategory === 'send' }">
+          Send Message
+        </button>
+      </div>
+      <!-- Search field -->
+      <div v-if="selectedMessageCategory !== 'send'" class="search-fields">
+        <input v-model="searchQuery" placeholder="Search messages...">
+      </div>
+      <!-- Table to display sent messages -->
+      <table v-if="selectedMessageCategory === 'sent'">
+        <thead>
+        <tr>
+          <th>Recipient</th>
+          <th>Message</th>
+          <th>Date Sent</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-if="filteredSentMessages.length === 0">
+          <td colspan="3">No sent messages to display.</td>
+        </tr>
+        <tr v-else v-for="message in filteredSentMessages" :key="message.id">
+          <td>{{ message.recipient_name }}</td>
+          <td>{{ message.content }}</td>
+          <td>{{ formatDate(message.timestamp) }}</td>
+        </tr>
+        </tbody>
+      </table>
+      <!-- Table to display received messages -->
+      <table v-else-if="selectedMessageCategory === 'received'">
+        <thead>
+        <tr>
+          <th>Sender</th>
+          <th>Message</th>
+          <th>Date Received</th>
+          <th>Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-if="filteredReceivedMessages.length === 0">
+          <td colspan="4">No received messages to display.</td>
+        </tr>
+        <tr v-else v-for="message in filteredReceivedMessages" :key="message.id">
+          <td>{{ message.sender_name }}</td>
+          <td>{{ message.content }}</td>
+          <td>{{ formatDate(message.timestamp) }}</td>
+          <td>
+            <button class="reply-button" @click="replyToMessage(message.sender_id)">Reply</button>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+      <!-- Form to send a message -->
+      <div v-else-if="selectedMessageCategory === 'send'">
+        <div class="form-group">
+          <label for="recipient">Recipient:</label>
+          <select id="recipient" v-model="selectedRecipient">
+            <option value="" disabled>Select a recipient</option>
+            <option v-for="user in users" :key="user.id" :value="user.user_id">
+              {{ user.username }}
+            </option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="message">Message:</label>
+          <textarea id="message" class="post-textarea" v-model="messageContent" placeholder="Type your message..."></textarea>
+        </div>
+        <button class="submit-button" @click="sendMessage">Send</button>
+      </div>
     </div>
   </div>
 
@@ -286,6 +363,20 @@ export default {
 
       return filtered;
     },
+
+    filteredSentMessages() {
+      return this.sentMessages.filter(message =>
+          message.content.toLowerCase().includes(this.searchQuery.toLowerCase())
+      );
+    },
+    filteredReceivedMessages() {
+      return this.receivedMessages.filter(message =>
+          message.content.toLowerCase().includes(this.searchQuery.toLowerCase())
+      );
+    },
+  },
+  created() {
+    this.fetchUsers();
   },
 
   name: 'SocialMedia',
@@ -308,6 +399,14 @@ export default {
       selectedFriendFilter: 'People',
       friendSearchQuery: '',
       toastMessage: '',
+
+
+      selectedMessageCategory: 'sent',
+      sentMessages: [],
+      receivedMessages: [],
+      selectedRecipient: '',
+      messageContent: '',
+
 
     };
   },
@@ -485,12 +584,6 @@ export default {
           });
     },
 
-
-    // Method to open the send message modal
-    sendMessage() {
-      // Add logic to show the send message modal
-    },
-
     openSendMessage() {
       this.showSendMessageModal = true;
     },
@@ -524,6 +617,91 @@ export default {
               (friendship.user_id === userId && friendship.friend_id === this.userID)
       );
       return friendship ? friendship.request_type : 'None';
+    },
+
+    closeSendMessageModal() {
+      this.showSendMessageModal = false;
+      this.resetMessageData();
+    },
+    resetMessageData() {
+      this.selectedMessageCategory = 'sent';
+      this.searchQuery = '';
+      this.selectedRecipient = '';
+      this.messageContent = '';
+    },
+    fetchSentMessages() {
+      this.selectedMessageCategory = 'sent';
+      const url = `https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/sent_messages/${this.userID}`;
+      axios.get(url)
+          .then(response => {
+            if (response.status === 200) {
+              this.sentMessages = response.data.sent_messages;
+            } else {
+              console.error('Sent messages not found.');
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error.response);
+          });
+    },
+    fetchReceivedMessages() {
+      this.selectedMessageCategory = 'received';
+      const url = `https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/received_messages/${this.userID}`;
+      axios.get(url)
+          .then(response => {
+            if (response.status === 200) {
+              this.receivedMessages = response.data.received_messages;
+            } else {
+              console.error('Received messages not found.');
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error.response);
+          });
+    },
+    showSendMessage() {
+      this.selectedMessageCategory = 'send';
+    },
+    sendMessage() {
+      const url = 'https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/send_message';
+      axios.post(url, {
+        sender_id: this.userID,
+        recipient_id: this.selectedRecipient,
+        content: this.messageContent
+      })
+          .then(response => {
+            if (response.status === 201) {
+              console.log('Message sent successfully.');
+              this.resetMessageData();
+            } else {
+              console.error('Failed to send message.');
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error.response);
+          });
+    },
+    formatDate(dateString) {
+      const date = new Date(dateString);
+      return date.toLocaleDateString();
+    },
+    fetchUsers() {
+      const url = 'https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/get_users';
+      axios.get(url)
+          .then(response => {
+            if (response.status === 200) {
+              this.users = response.data.filter(user => user.user_id !== this.userID);
+            } else {
+              console.error('Users not found.');
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error.response);
+          });
+    },
+    replyToMessage(senderId) {
+      this.selectedRecipient = senderId;
+      this.selectedMessageCategory = 'send';
     },
 
   }
@@ -810,5 +988,114 @@ th {
 
 .submit-button:hover {
   background-color: #45a049;
+}
+
+.toggle-button {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.toggle-btn {
+  padding: 10px 20px;
+  margin: 0 10px;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.toggle-btn.active {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.reply-button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  background-color: #4CAF50;
+  color: white;
+}
+
+
+.search-fields {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.search-fields input {
+  width: 100%;
+  max-width: 400px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.search-fields input:focus {
+  border-color: #4CAF50;
+  box-shadow: 0 0 8px rgba(76, 175, 80, 0.5);
+}
+
+.search-fields input:focus {
+  border-color: #4CAF50;
+  box-shadow: 0 0 8px rgba(76, 175, 80, 0.5);
+}
+
+select {
+  width: 100%;
+  padding: 12px 40px 12px 15px;
+  margin: 10px 0;
+  border: 2px solid #4CAF50;
+  border-radius: 8px;
+  background-color: white;
+  font-size: 16px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  appearance: none;
+  position: relative;
+  background-repeat: no-repeat;
+  background-position: right 15px center;
+  background-size: 30px;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%234CAF50" width="36px" height="36px"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+  cursor: pointer;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+select:hover {
+  border-color: #367B25;
+}
+
+select:focus {
+  outline: none;
+  border-color: #88C057;
+  box-shadow: 0 0 0 2px rgba(136, 192, 87, 0.5);
+}
+
+.option {
+  padding: 10px;
+  background-color: white;
+  color: #333;
+}
+
+/* Fade-in animation keyframes */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 </style>
