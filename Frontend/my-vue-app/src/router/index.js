@@ -7,8 +7,6 @@ import ImpactCalculator from '../components/ImpactCalculator.vue';
 import ChallengeCenter from '../components/ChallengeCenter.vue';
 import store from '../store';
 import UserProfile from "../components/UserProfile.vue";
-import SendChallenge from "../components/SendChallenge.vue";
-import ChallengeInbox from "../components/ChallengeInbox.vue";
 //import UserProfile from "../components/UserProfile.vue";
 import SocialMedia from "../components/SocialMedia.vue";
 //import EcoPoints from "../components/EcoPoints.vue";
@@ -21,18 +19,6 @@ const routes = [
     path: '/calculator',
     name: 'ImpactCalculator',
     component: ImpactCalculator,
-    meta: { requiresAuth: true }
-  },
-  {
-    path: '/sendchallenge',
-    name: 'SendChallenge',
-    component: SendChallenge,
-    meta: { requiresAuth: true }
-  },
-  {
-    path: '/challengeinbox',
-    name: 'ChallengeInbox',
-    component: ChallengeInbox,
     meta: { requiresAuth: true }
   },
   {

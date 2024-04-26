@@ -1,77 +1,71 @@
 <template>
-  <div>
-    <button @click="showModal = true">Create Challenge</button>
+  <!-- Main container for the send challenge component -->
+  <div class="send-challenge">
+    <!-- Title -->
+    <h2 class = "header">Create Challenges</h2>
+    <!-- Content container -->
+    <div>
+       <!-- Toggle button for personal and community challenges -->
+       <div class="toggle-button">
+  <button class="toggle-btn" :class="{ active: showPersonal }" @click="showPersonal = true">Personal Challenge</button>
+  <button class="toggle-btn" :class="{ active: !showPersonal }" @click="showPersonal = false">Community Challenge</button>
+</div>
+      <!-- Challenge Dropdown -->
+      <div v-if="showPersonal">
+    <div class="input-group">
+       <!-- Label for Personal Challenge Dropdown -->
+      <div class="left-dropdown">
+        <label for="challenge" class="dropdown-label personal-label">Personal Challenge:</label>
+        <div class="challenge-form">
+    <div class="form-group">
+      <label for="challenge-title">Challenge Title:</label>
+      <input type="text" id="challenge-title" v-model="challengeTitle" placeholder="Enter challenge title">
+    </div>
 
-    <div v-if="showModal" class="modal">
-      <div class="modal-content">
-        <h2>Create Challenges</h2>
-        <div class="toggle-button">
-          <button class="toggle-btn" :class="{ active: showPersonal }" @click="showPersonal = true">Personal Challenge</button>
-          <button class="toggle-btn" :class="{ active: !showPersonal }" @click="showPersonal = false">Community Challenge</button>
-        </div>
+    <div class="form-group">
+      <label for="challenge-description">Challenge Description:</label>
+      <textarea id="challenge-description" v-model="challengeDescription" placeholder="Enter challenge description"></textarea>
+    </div>
 
-        <div v-if="showPersonal">
-          <div class="form-group">
-            <label for="challenge-title">Challenge Title:</label>
-            <input type="text" id="challenge-title" v-model="challengeTitle" placeholder="Enter challenge title" class="form-control">
-          </div>
+    <div class="form-group">
+      <label for="eco-points">Eco Point Reward:</label>
+      <input type="number" id="eco-points" v-model="ecoPoints" placeholder="Enter Eco Points">
+    </div>
 
-          <div class="form-group">
-            <label for="challenge-description">Challenge Description:</label>
-            <textarea id="challenge-description" v-model="challengeDescription" placeholder="Enter challenge description" class="form-control"></textarea>
-          </div>
+    <div class="form-group">
+      <label for="duration">Duration:</label>
+      <select id="duration" v-model="duration">
+        <option value="day">Day</option>
+        <option value="week">Week</option>
+        <option value="month">Month</option>
+        <option value="year">Year</option>
+      </select>
+    </div>
+  </div>
 
-          <div class="form-group">
-            <label for="eco-points">Eco Point Reward:</label>
-            <input type="number" id="eco-points" v-model="ecoPoints" placeholder="Enter Eco Points" class="form-control">
-          </div>
-
-          <div class="form-row">
-            <div class="form-group col-md-6">
-              <label for="start-date">Start Date:</label>
-              <input type="date" id="start-date" v-model="startDate" class="form-control">
-            </div>
-            <div class="form-group col-md-6">
-              <label for="end-date">End Date:</label>
-              <input type="date" id="end-date" v-model="endDate" class="form-control">
-            </div>
-          </div>
-
-          <button class="btn btn-success" @click="createPersonalChallenge">Send Personal Challenge!</button>
-        </div>
-
-        <div v-else>
-          <div class="form-group">
-            <label for="community-challenge-title">Challenge Title:</label>
-            <input type="text" id="community-challenge-title" v-model="communityChallengeTitle" placeholder="Enter challenge title" class="form-control">
-          </div>
-
-          <div class="form-group">
-            <label for="community-challenge-description">Challenge Description:</label>
-            <textarea id="community-challenge-description" v-model="communityChallengeDescription" placeholder="Enter challenge description" class="form-control"></textarea>
-          </div>
-
-          <div class="form-group">
-            <label for="community-eco-points">Eco Point Reward:</label>
-            <input type="number" id="community-eco-points" v-model="communityEcoPoints" placeholder="Enter Eco Points" class="form-control">
-          </div>
-
-          <div class="form-row">
-            <div class="form-group col-md-6">
-              <label for="community-start-date">Start Date:</label>
-              <input type="date" id="community-start-date" v-model="communityStartDate" class="form-control">
-            </div>
-            <div class="form-group col-md-6">
-              <label for="community-end-date">End Date:</label>
-              <input type="date" id="community-end-date" v-model="communityEndDate" class="form-control">
-            </div>
-          </div>
-
-          <button class="btn btn-success" @click="createCommunityChallenge">Send Community Challenge!</button>
-        </div>
-
-        <button class="btn btn-secondary" @click="showModal = false">Close</button>
       </div>
+      </div>
+
+      <!-- Submit Button -->
+      <button class="submit-button" @click="sendPersonalChallenge()">Send Personal Challenge!</button>
+    </div>
+    <!-- Vue Select component replaced by standard select for community challenges -->
+    <div v-else>
+      <div class="input-group">
+        <div class="left-dropdown">
+          <label for="community-challenge-select" class="dropdown-label personal-label">Community Challenge:</label>
+          <select id="community-challenge-select" v-model="selectedCommunityChallenge" class="custom-select">
+            <option v-for="option in challenges" :value="option.value" :key="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+        </div>
+      </div>
+      <!-- Submit Button -->
+      <button class="submit-button" @click="sendCommunityChallenge()">Send Community Challenge!</button>
+    </div>
+
+      <!-- Your content goes here -->
     </div>
   </div>
 </template>
@@ -82,113 +76,269 @@ import { mapGetters } from 'vuex';
 
 export default {
   computed: {
-    ...mapGetters(['currentUser']),
-    userID() {
-      return this.currentUser ? this.currentUser.userId : null;
-    }
+        ...mapGetters(['currentUser']),
+        // Use a computed property to react to changes in currentUser
+        userID() {
+            return this.currentUser ? this.currentUser.userId : null;
+        }
+    },
+  name: 'SendChallenge',
+  components: {
+
   },
   data() {
     return {
-      showModal: false,
+      selectedCommunityChallenge: '',
+      selectedPersonalChallenge: '',
+      content: null,
       showPersonal: true,
-      challengeTitle: '',
-      challengeDescription: '',
-      ecoPoints: null,
-      startDate: '',
-      endDate: '',
-      communityChallengeTitle: '',
-      communityChallengeDescription: '',
-      communityEcoPoints: null,
-      communityStartDate: '',
-      communityEndDate: ''
+      challenges: [
+    { value: 1, label: 'Daily Quick Win: Refuse a plastic straw [5 points]' },
+    { value: 2, label: 'Weekly Warrior: Use a refillable water bottle for a week[50 points]' },
+    { value: 3, label: 'Monthly Master: Avoid all single-use plastics for a month[200 points]' },
+    { value: 4, label: 'Yearly Hero: Reduce personal waste by 50% [1000 points]' }
+  ],
+    //users: ['Esteban Linarez', 'Kyle Kaufman', 'Preston DeLeo', 'Kani Ahmed', 'Pranav Dhinakar'] // Sample data for users
     };
   },
   methods: {
-    async createPersonalChallenge() {
-      if (this.challengeTitle && this.challengeDescription && this.ecoPoints && this.startDate && this.endDate) {
-        if (!this.userID) {
-          console.error('User ID is empty');
-          return;
-        }
+    async sendPersonalChallenge() {
+  // Check if all input fields have values
+  if (
+    this.challengeTitle &&
+    this.challengeDescription &&
+    this.ecoPoints &&
+    this.duration
+  ) {
+    // If all fields have values, log them
+    console.log('Challenge Title:', this.challengeTitle);
+    console.log('Challenge Description:', this.challengeDescription);
+    console.log('Eco Point Reward:', this.ecoPoints);
+    console.log('Duration:', this.duration);
+    // Get the current date
+// Get the current date
+const currentDate = new Date();
 
-        try {
-          const url = 'http://127.0.0.1:5000/create_personal_challenge';
-          const response = await axios.post(url, {
-            user_id: this.userID,
-            name: this.challengeTitle,
-            description: this.challengeDescription,
-            eco_points: this.ecoPoints,
-            start_date: this.startDate,
-            end_date: this.endDate
-          });
+// Format the current date
+const formattedCurrentDate = `${currentDate.getFullYear()}-${String(
+  currentDate.getMonth() + 1
+).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}`;
 
-          if (response.status === 201) {
-            console.log(response.data);
-            this.showModal = false;
-          } else {
-            console.error('Challenge not sent.');
-          }
-        } catch (error) {
-          console.error('Error sending challenge:', error);
-        }
+console.log('Current Date:', formattedCurrentDate);
+// Initialize variables for future date calculation
+let futureDate = new Date(currentDate);
+
+// Calculate the future date based on the selected duration
+switch (this.duration) {
+  case 'day':
+    futureDate.setDate(currentDate.getDate() + 1);
+    break;
+  case 'week':
+    futureDate.setDate(currentDate.getDate() + 7);
+    break;
+  case 'month':
+    futureDate.setMonth(currentDate.getMonth() + 1);
+    break;
+  case 'year':
+    futureDate.setFullYear(currentDate.getFullYear() + 1);
+    break;
+  default:
+    // Handle invalid duration
+    console.error('Invalid duration selected.');
+    return;
+}
+
+// Format the future date
+const formattedFutureDate = `${futureDate.getFullYear()}-${String(
+  futureDate.getMonth() + 1
+).padStart(2, '0')}-${String(futureDate.getDate()).padStart(2, '0')}`;
+console.log('Future Date:', formattedFutureDate);
+    // Proceed with sending the personal challenge
+    // Access the value property of selectedPersonalChallenge
+    if (!this.userID) {
+      console.error('Id is empty');
+      return;
+    }
+    try {
+      const url = `https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/create_personal_challenge`;
+      const response = await axios.post(url, {
+        name:this.challengeTitle,
+        description:this.challengeDescription,
+        eco_points:this.ecoPoints,
+        start_date: formattedCurrentDate,
+        end_date: formattedFutureDate
+      });
+
+      if (response.status === 201) {
+        console.log(response.data);
+        this.content = response.data; // Make sure to define this.content in your data() function if you want to use it here
+        console.log(this.content);
       } else {
-        console.error('Please fill in all fields.');
+        console.error('Challenge not sent.');
       }
-    },
-
-    async createCommunityChallenge() {
-      if (this.communityChallengeTitle && this.communityChallengeDescription && this.communityEcoPoints && this.communityStartDate && this.communityEndDate) {
+    } catch (error) {
+      console.error('Error sending challenge:', error);
+    }
+  } else {
+    // If any field is empty, log an error message
+    console.error('Please fill in all fields.');
+  }
+},
+async sendCommunityChallenge() {
+      if (this.selectedCommunityChallenge) { // Simplified conditional check, assuming 'selectedCommunityChallenge' is properly updated from the dropdown
+        const challengeID = this.selectedCommunityChallenge; // Changed to use the direct value of the selected challenge
+        console.log(`Sending community challenge with ID: ${challengeID}`);
         if (!this.userID) {
-          console.error('User ID is empty');
+          console.error('User ID is empty'); // Improved error message for clarity
           return;
         }
-
         try {
-          const url = 'http://127.0.0.1:5000/create_community_challenge';
+          const url = `https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/create_community_challenge`;
           const response = await axios.post(url, {
-            name: this.communityChallengeTitle,
-            description: this.communityChallengeDescription,
-            eco_points: this.communityEcoPoints,
-            start_date: this.communityStartDate,
-            end_date: this.communityEndDate,
+            challenge_id: challengeID,  // Now directly sending the challenge ID
             created_by: this.userID
           });
 
-          if (response.status === 201) {
-            console.log('Response:', response.data);
-            this.showModal = false;
+          if (response.status === 200) {
+            this.content = response.data;
+            console.log('Response:', this.content);
           } else {
-            console.error('Challenge not sent. Status:', response.status);
+            console.error('Challenge not sent. Status:', response.status); // Added status code for better error understanding
           }
         } catch (error) {
-          console.error('Error sending challenge:', error);
+          console.error('Error sending challenge:', error); // General error handling unchanged
         }
       } else {
-        console.error('Please fill in all fields.');
+        console.error('No challenge selected.'); // Error message for no selection unchanged
       }
     }
   }
 }
 </script>
 
+
+
+
+
+
+
+
 <style scoped>
-.modal {
-  position: fixed;
-  z-index: 1;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  overflow: auto;
-  background-color: rgba(0, 0, 0, 0.4);
+/* Styles specific to this component */
+
+/* Title style */
+.centered-title {
+  font-size: 2.5em;
+  text-align: left; /* Align the title to the left */
 }
 
-.modal-content {
-  background-color: #fefefe;
-  margin: 15% auto;
-  padding: 20px;
-  border: 1px solid #888;
-  width: 80%;
+/* Container for input groups */
+.input-group {
+  margin-bottom: 20px; /* Add spacing between each input group */
+  text-align: left; /* Align the content within the input group to the left */
+}
+
+/* Left-aligned dropdown label style */
+.left-dropdown {
+  display: block; /* Use block layout */
+  margin-bottom: 10px; /* Add spacing between each dropdown */
+  text-align: left; /* Align the dropdown label to the left */
+}
+
+/* Custom styles for Vue Select */
+.custom-select .vs__search {
+  width: 100%; /* Make the input box stretch to the entire width within the Vue Select dropdown */
+}
+
+/* Textarea style */
+.input-field {
+  width: 100%; /* Make textarea stretch to the entire width */
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* Submit button style */
+.submit-button {
+  /* Align the button to the center */
+  float: center;
+
+  /* Set width and height to make it square */
+  width: 100px;
+  height: 100px;
+
+  /* Optional: Add padding for better visual appearance */
+  padding: 10px;
+
+  /* Optional: Set background color */
+  background-color: #4CAF50;
+
+  /* Optional: Set text color */
+  color: white;
+
+  /* Optional: Set border and border-radius */
+  border: none;
+  border-radius: 5px;
+
+  /* Optional: Add hover effect */
+  transition: background-color 0.3s ease;
+}
+
+/* Add hover effect */
+.submit-button:hover {
+  background-color: #45a049; /* Change background color on hover */
+}
+
+.input-group {
+  display: flex;
+  align-items: flex-start; /* Align items at the start of the flex container */
+}
+
+.left-dropdown {
+  flex: 0 0 auto; /* Prevent this div from growing or shrinking */
+  margin-right: 20px; /* Add some space between the label and the form */
+}
+
+.challenge-form {
+  flex: 1; /* Allow this div to grow and take up remaining space */
+}
+
+.form-group {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  margin-bottom: 5px;
+}
+
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 8px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+}
+
+.header {
+  font-size: 2.5em;
+  text-align: center; /* Align the title to the left */
+  margin-bottom: 20px; /* Add margin between header and content */
+}
+
+/* Styling for dropdown labels */
+.dropdown-label {
+  font-weight: bold;
+  font-size: 1.2em;
+}
+
+.personal-label {
+  color: #4CAF50;
 }
 
 .toggle-button {
@@ -212,61 +362,9 @@ export default {
   color: white;
 }
 
-.form-group {
-  margin-bottom: 20px;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
-}
-
-.form-control {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box;
-}
-
-.form-row {
-  display: flex;
-  justify-content: space-between;
-}
-
-.form-row .form-group {
-  flex: 1;
-  margin-right: 10px;
-}
-
-.form-row .form-group:last-child {
-  margin-right: 0;
-}
-
-.btn {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.btn-success {
-  background-color: #4CAF50;
-  color: white;
-}
-
-.btn-success:hover {
-  background-color: #45a049;
-}
-
-.btn-secondary {
-  background-color: #ccc;
-  color: black;
-  margin: 10px;
-}
-
-.btn-secondary:hover {
-  background-color: #b3b3b3;
+::placeholder {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  font-size: 16px; /* Adjust font size as needed */
+  /* Add any other desired placeholder styles */
 }
 </style>

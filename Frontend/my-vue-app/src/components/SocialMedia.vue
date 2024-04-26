@@ -534,24 +534,6 @@ export default {
 <style scoped>
 /* Scoped styles for the social media component */
 
-.social-media-component {
-  /* Styles that apply to the whole component */
-}
-
-.image-action {
-  /* Styles that apply to the first photo */
-  /* make image smaller */
-
-  /* add padding */
-  /* add border */
-  /* add border radius */
-  /* add margin */
-  /* add box shadow */
-  /* add hover effect */
-  /* add cursor pointer */
-  /* add transition */
-}
-
 main {
   padding: 20px;
   display: flex;

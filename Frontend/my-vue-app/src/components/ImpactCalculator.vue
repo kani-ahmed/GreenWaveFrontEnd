@@ -6,17 +6,17 @@
         <h1>Impact Calculator</h1>
       </header>
 
-      <!-- Modal for displaying send challenges -->
-      <div v-if="showSendChallengesModall=true" class="modal">
+      <!-- Modal for displaying the challenges to choose for water logging -->
+      <div v-if="showChooseChallengesModal=true" class="modal">
         <div class="modal-content">
-          <h2>Choose A Challenge To Log</h2>
+          <h2>Pick a Challenge for Your Eco Action!</h2>
           <!-- Buttons for switching between personal and community challenges -->
-          <div class="challenge-type-buttons">
-            <button @click="filterChallenges('Personal')"
+          <div class="toggle-btn">
+            <button class="toggle-btn" @click="filterChallenges('Personal')"
                     :class="{ active: selectedChallengeType === 'Personal' }">
               Personal Challenges
             </button>
-            <button @click="filterChallenges('Community')"
+            <button class="toggle-btn" @click="filterChallenges('Community')"
                     :class="{ active: selectedChallengeType === 'Community' }">
               Community Challenges
             </button>
@@ -36,7 +36,7 @@
             <tr>
               <td>
                 <select v-model="selectedChallenge">
-                  <option class="dropdown" v-for="challenge in filteredChallenges" :key="challenge.id"
+                  <option class="option" v-for="challenge in filteredChallenges" :key="challenge.id"
                           :value="challenge">
                     {{ challenge.name }}
                   </option>
@@ -163,10 +163,10 @@ export default {
       impactDetails: {}, // Details of the impact
       toastMessage: '', // Message for toast component
 
-      selectedChallengeType: 'personal',
+      selectedChallengeType: 'Personal',
       sendChallenges: [],
       challengeSearchQuery: '',
-      showSendChallengesModall: false,
+      showChooseChallengesModal: false,
       selectedChallenge: null,
       userChallengeStatuses: [],
     };
@@ -290,17 +290,14 @@ export default {
         return Promise.reject(error);
       }
     },
-    // Method to filter challenges based on the selected challenge type
-    filterChallenges(challengeType) {
-      this.selectedChallengeType = challengeType;
-    },
 
     fetchUserChallengeStatuses() {
       const url = `https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/user_challenge_status/${this.userID}`;
       axios.get(url)
           .then(response => {
-            if (response.status === 200) {
+            if (response.status === 200 && response.data.length > 0) {
               this.userChallengeStatuses = response.data;
+              this.selectedChallenge = this.userChallengeStatuses[0];
             } else {
               console.error('User challenge statuses not found.');
             }
@@ -308,6 +305,28 @@ export default {
           .catch(error => {
             console.error('Error:', error.response);
           });
+    },
+
+    filterChallenges(challengeType) {
+      this.selectedChallengeType = challengeType;
+      // Call this method to filter and auto-select the first challenge
+      this.updateFilteredAndSelectedChallenges();
+    },
+
+    // Method to filter and auto-select the first available challenge
+    updateFilteredAndSelectedChallenges() {
+      // Apply the filter
+      const filtered = this.userChallengeStatuses.filter(challenge =>
+          challenge.type === this.selectedChallengeType &&
+          challenge.name.toLowerCase().includes(this.challengeSearchQuery.toLowerCase())
+      );
+
+      // Auto-select the first challenge
+      if (filtered.length > 0) {
+        this.selectedChallenge = filtered[0];
+      } else {
+        this.selectedChallenge = null;
+      }
     },
   }
 }
@@ -528,13 +547,6 @@ header::after {
   margin: 10px;
 }
 
-.challenge-type-buttons {
-  margin-bottom: 10px;
-  display: flex;
-  justify-content: center;
-  width: 100%;
-}
-
 .challenge-type-buttons button {
   margin-right: 10px;
   padding: 5px 10px;
@@ -550,41 +562,8 @@ header::after {
   color: white;
 }
 
-.dropdown {
-  position: relative;
-  display: inline-block;
-}
-
-.dropdown-toggle {
-  padding: 5px 10px;
-  border: none;
-  background-color: #4caf50;
-  color: white;
-  cursor: pointer;
-}
-
-.dropdown-menu {
-  display: none;
-  position: absolute;
-  background-color: #f9f9f9;
-  min-width: 120px;
-  box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
-  z-index: 1;
-}
-
 .dropdown:hover .dropdown-menu {
   display: block;
-}
-
-.dropdown-item {
-  padding: 8px 16px;
-  text-decoration: none;
-  display: block;
-  cursor: pointer;
-}
-
-.dropdown-item:hover {
-  background-color: #f1f1f1;
 }
 
 .search-fields {
@@ -610,39 +589,51 @@ header::after {
   box-shadow: 0 0 8px rgba(76, 175, 80, 0.5);
 }
 
-
-.send-challenges-button {
-  padding: 8px 20px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  background-color: #2196F3;
-  color: white;
-}
-
-.send-challenges-button:hover {
-  background-color: #950bda;
-}
-
 select {
   width: 100%;
-  padding: 8px 10px;
-  margin-top: 5px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  padding: 12px 40px 12px 15px;
+  margin: 10px 0;
+  border: 2px solid #4CAF50;
+  border-radius: 8px;
   background-color: white;
+  font-size: 16px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  appearance: none;
+  position: relative;
+  background-repeat: no-repeat;
+  background-position: right 15px center;
+  background-size: 30px;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%234CAF50" width="36px" height="36px"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
   cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+select:hover {
+  border-color: #367B25;
+}
+
+select:focus {
+  outline: none;
+  border-color: #88C057;
+  box-shadow: 0 0 0 2px rgba(136, 192, 87, 0.5);
+}
+
+.option {
+  padding: 10px;
+  background-color: white;
+  color: #333;
 }
 
 table {
   width: 100%;
+  border: 1px solid #ddd;
+  border-radius: 5px;
   border-collapse: collapse;
 }
 
 th, td {
-  text-align: left;
+  text-align: center;
   padding: 8px;
   border-bottom: 1px solid #ddd;
 }
@@ -661,6 +652,21 @@ td:first-child {
 td:last-child {
   width: 30%;
   text-align: right;
+}
+
+.toggle-btn {
+  padding: 10px 20px;
+  margin: 0 10px;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.toggle-btn.active {
+  background-color: #4CAF50;
+  color: white;
 }
 
 /* Fade-in animation keyframes */

@@ -122,11 +122,11 @@
         <!-- Title for the modal -->
         <h2>Challenge Inbox</h2>
         <!-- Buttons for switching between sent and received challenges -->
-        <div class="challenge-type-buttons">
-          <button @click="fetchSentChallenges" :class="{ active: selectedChallengeCategory === 'sent' }">
+        <div class="toggle-button">
+          <button class="toggle-btn" @click="fetchSentChallenges" :class="{ active: selectedChallengeCategory === 'sent' }">
             Sent Challenges
           </button>
-          <button @click="fetchReceivedChallenges" :class="{ active: selectedChallengeCategory === 'received' }">
+          <button class="toggle-btn" @click="fetchReceivedChallenges" :class="{ active: selectedChallengeCategory === 'received' }">
             Received Challenges
           </button>
         </div>
@@ -217,12 +217,12 @@
         <!-- Title for the modal -->
         <h2>Send Challenges</h2>
         <!-- Buttons for switching between personal and community challenges -->
-        <div class="challenge-type-buttons">
-          <button @click="fetchPersonalChallengesForSending"
+        <div class="toggle-button">
+          <button class="toggle-btn" @click="fetchPersonalChallengesForSending"
                   :class="{ active: selectedSendChallengeType === 'personal' }">
             Personal Challenges
           </button>
-          <button @click="fetchCommunityChallengesForSending"
+          <button class="toggle-btn" @click="fetchCommunityChallengesForSending"
                   :class="{ active: selectedSendChallengeType === 'community' }">
             Community Challenges
           </button>
@@ -310,12 +310,12 @@
         <!-- Content to be shown when not loading -->
         <div v-if="isLoadingJoinChallenges === false">
           <!-- Buttons for switching between personal and community challenges -->
-          <div class="challenge-type-buttons">
-            <button @click="fetchPersonalChallengesForSending(); selectedJoinChallengeType = 'personal'"
+          <div class="toggle-button">
+            <button class="toggle-btn" @click="fetchPersonalChallengesForSending(); selectedJoinChallengeType = 'personal'"
                     :class="{ active: selectedJoinChallengeType === 'personal' }">
               Personal Challenges
             </button>
-            <button @click="fetchCommunityChallengesForSending(); selectedJoinChallengeType = 'community'"
+            <button class="toggle-btn" @click="fetchCommunityChallengesForSending(); selectedJoinChallengeType = 'community'"
                     :class="{ active: selectedJoinChallengeType === 'community' }">
               Community Challenges
             </button>
@@ -418,7 +418,7 @@
             </div>
           </div>
 
-          <button class="btn btn-success" @click="createPersonalChallenge">Send Personal Challenge!</button>
+          <button class="btn btn-success" @click="createPersonalChallenge">Create Personal Challenge!</button>
         </div>
 
         <div v-else>
@@ -451,7 +451,7 @@
             </div>
           </div>
 
-          <button class="btn btn-success" @click="createCommunityChallenge">Send Community Challenge!</button>
+          <button class="btn btn-success" @click="createCommunityChallenge">Create Community Challenge!</button>
         </div>
       </div>
     </div>
@@ -1052,19 +1052,19 @@ export default {
     },
 
     async createPersonalChallenge() {
-      if (this.challengeTitle && this.challengeDescription && this.ecoPoints && this.startDate && this.endDate) {
+      if (this.challengeTitle && this.challengeDescription && this.eco_points && this.startDate && this.endDate) {
         if (!this.userID) {
           console.error('User ID is empty');
           return;
         }
 
         try {
-          const url = 'http://127.0.0.1:5000/create_personal_challenge';
+          const url = 'https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/create_personal_challenge';
           const response = await axios.post(url, {
             user_id: this.userID,
             name: this.challengeTitle,
             description: this.challengeDescription,
-            eco_points: this.ecoPoints,
+            eco_points: this.eco_points,
             start_date: this.startDate,
             end_date: this.endDate
           });
@@ -1091,7 +1091,7 @@ export default {
         }
 
         try {
-          const url = 'http://127.0.0.1:5000/create_community_challenge';
+          const url = 'https://heroku-project-backend-staging-ffb8722f57d5.herokuapp.com/create_community_challenge';
           const response = await axios.post(url, {
             name: this.communityChallengeTitle,
             description: this.communityChallengeDescription,
@@ -1191,6 +1191,7 @@ main {
 /* Button group styles */
 .button-group {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   padding: 10px;
   margin-bottom: 20px;
@@ -1241,8 +1242,16 @@ main {
 /* Close button styles */
 .close {
   float: right;
-  font-size: 28px;
+  font-size: 18px;
   cursor: pointer;
+  border: 2px double #394936;
+  border-radius: 5px;
+  padding: 5px 10px;
+  color: #b1060d;
+}
+.close:hover {
+  color: #e30a0a;
+  background-color: #d7f7d9;
 }
 
 /* Table styles */
@@ -1279,14 +1288,14 @@ th {
   border-radius: 50%;
 }
 
-.challenge-type-buttons {
+.toggle-btn {
   margin-bottom: 10px;
   display: flex;
   justify-content: center;
   width: 100%;
 }
 
-.challenge-type-buttons button {
+.toggle-btn button {
   margin-right: 10px;
   padding: 5px 10px;
   border: 1px solid #ccc;
@@ -1296,7 +1305,7 @@ th {
   font-size: 18px;
 }
 
-.challenge-type-buttons button.active {
+.toggle-btn button.active {
   background-color: #4caf50;
   color: white;
 }
@@ -1437,6 +1446,10 @@ select {
   max-height: 400px;
   overflow-y: auto;
 }
+.table-container th {
+  position: sticky;
+  top: 0;
+}
 
 .filter-search {
   margin-bottom: 10px;
@@ -1563,4 +1576,30 @@ select {
 .btn-success:hover {
   background-color: #45a049;
 }
+
+.toggle-btn {
+  padding: 10px 20px;
+  margin: 0 10px;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.toggle-btn.active {
+  background-color: #4CAF50;
+  color: white;
+}
+
+@media (max-width: 768px) {
+  .button-group {
+    flex-direction: column;
+  }
+  .modal-content {
+    width: 95%;
+    padding: 10px;
+  }
+}
+
 </style>
